@@ -1,0 +1,17 @@
+right Axis (only absolute Scale same, but window can be bigger)
+
+weird curve wobbling -> output showed that discretization is weird! Resolution arma::vecs or interpolation?
+
+Special Nose Parametrization
+
+History and undo Commands
+
+Good Tools for comparing to
+    - History
+    - other foils
+
+Nice Blueprints?
+
+multiple baseCoords calls on start? -> only once needed
+
+caclulating in own Processes

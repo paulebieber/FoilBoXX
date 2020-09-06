@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>foil</class>
+ <widget class="QMainWindow" name="foil">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1013</width>
+    <height>570</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>FoilBoXX</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QWidget" name="widget" native="true"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(211, 215, 207);</string>
+   </property>
+   <property name="movable">
+    <bool>true</bool>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextBesideIcon</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>BottomToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionaddPoint"/>
+   <addaction name="actionminusPoint"/>
+   <addaction name="actionLock"/>
+   <addaction name="actionset_Bounds"/>
+  </widget>
+  <action name="actionset_to">
+   <property name="text">
+    <string>set to..</string>
+   </property>
+  </action>
+  <action name="actionLock">
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/images/lock.png</normaloff>:/images/lock.png</iconset>
+   </property>
+   <property name="text">
+    <string>Lock Point(s)</string>
+   </property>
+   <property name="shortcut">
+    <string>L</string>
+   </property>
+  </action>
+  <action name="actionaddPoint">
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/images/plus.png</normaloff>:/images/plus.png</iconset>
+   </property>
+   <property name="text">
+    <string>add Point</string>
+   </property>
+  </action>
+  <action name="actionminusPoint">
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/images/minus.png</normaloff>:/images/minus.png</iconset>
+   </property>
+   <property name="text">
+    <string>remove Point(s)</string>
+   </property>
+  </action>
+  <action name="actionset_Bounds">
+   <property name="text">
+    <string>set Bounds</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="../resources/resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

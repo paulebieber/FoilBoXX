@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>pressure</class>
+ <widget class="QMainWindow" name="pressure">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>824</width>
+    <height>466</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>FoilBoXX</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QWidget" name="widget_pressure" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="acceptDrops">
+    <bool>false</bool>
+   </property>
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(211, 215, 207);</string>
+   </property>
+   <property name="movable">
+    <bool>true</bool>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextBesideIcon</enum>
+   </property>
+   <property name="floatable">
+    <bool>true</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>BottomToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <action name="actionaddPressureStrive">
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/images/plus.png</normaloff>:/images/plus.png</iconset>
+   </property>
+   <property name="text">
+    <string>add PressureStrive</string>
+   </property>
+   <property name="toolTip">
+    <string>add PressureStrive</string>
+   </property>
+  </action>
+  <action name="actionminusStrive">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/images/minus.png</normaloff>:/images/minus.png</iconset>
+   </property>
+   <property name="text">
+    <string>delete Strive</string>
+   </property>
+  </action>
+  <action name="actionShapeH">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/images/lock.png</normaloff>:/images/lock.png</iconset>
+   </property>
+   <property name="text">
+    <string>Shape H</string>
+   </property>
+  </action>
+  <action name="actionRheTeta">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/images/eye.png</normaloff>:/images/eye.png</iconset>
+   </property>
+   <property name="text">
+    <string>RheTeta</string>
+   </property>
+  </action>
+  <action name="actioncP">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/images/plus.png</normaloff>:/images/plus.png</iconset>
+   </property>
+   <property name="text">
+    <string>cP</string>
+   </property>
+  </action>
+  <action name="actionaddPoint">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/images/plus.png</normaloff>:/images/plus.png</iconset>
+   </property>
+   <property name="text">
+    <string>add Point</string>
+   </property>
+  </action>
+  <action name="actionminusPoint">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/images/minus.png</normaloff>:/images/minus.png</iconset>
+   </property>
+   <property name="text">
+    <string>delete Point</string>
+   </property>
+  </action>
+  <action name="actioncPVisc">
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/images/minus.png</normaloff>:/images/minus.png</iconset>
+   </property>
+   <property name="text">
+    <string>cPVisc</string>
+   </property>
+  </action>
+  <action name="actiontoggleSide">
+   <property name="text">
+    <string>toggle Side</string>
+   </property>
+  </action>
+  <action name="actionaddGradientStrive">
+   <property name="text">
+    <string>add GradientStrive</string>
+   </property>
+   <property name="toolTip">
+    <string>add GradientStrive</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="../resources/resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

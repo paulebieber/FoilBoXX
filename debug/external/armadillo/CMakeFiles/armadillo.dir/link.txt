@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC  -std=c++11 -O2 -g  -Wl,--no-as-needed -shared -Wl,-soname,libarmadillo.so.9 -o libarmadillo.so.9.900.2 CMakeFiles/armadillo.dir/armadillo_autogen/mocs_compilation.cpp.o CMakeFiles/armadillo.dir/src/wrapper1.cpp.o CMakeFiles/armadillo.dir/src/wrapper2.cpp.o  -lopenblas -llapack 

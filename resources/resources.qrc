@@ -1,0 +1,15 @@
+<RCC>
+  <qresource prefix="images">
+    <file>FoilBox_Logo15.png</file>
+    <file>FoilBox_Logo10.png</file>
+    <file>lock.png</file>
+    <file>circle10.png</file>
+    <file>lock-white.png</file>
+    <file>FoilBox_Logo.png</file>
+    <file>eye.png</file>
+    <file>FoilBox_Logo20.png</file>
+    <file>airfoil.png</file>
+    <file>minus.png</file>
+    <file>plus.png</file>
+  </qresource>
+</RCC>

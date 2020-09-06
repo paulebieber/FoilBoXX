@@ -1,0 +1,580 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dock</class>
+ <widget class="QMainWindow" name="Dock">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1684</width>
+    <height>1163</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>FoilBoXX</string>
+  </property>
+  <property name="dockNestingEnabled">
+   <bool>true</bool>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout_6">
+    <item row="0" column="0">
+     <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <widget class="QWidget" name="horizontalLayoutWidget">
+       <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
+        <item>
+         <widget class="QTreeWidget" name="treeView">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+            <horstretch>1</horstretch>
+            <verstretch>1</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>300</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>300</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">/*background-image: url(:/images/FoilBox_Logo15.png);
+background-repeat: no-repeat;
+background-attachment: fixed;
+background-position: bottom left;
+background-color: rgb(255, 255, 255);</string>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="indentation">
+           <number>10</number>
+          </property>
+          <property name="rootIsDecorated">
+           <bool>true</bool>
+          </property>
+          <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="headerHidden">
+           <bool>false</bool>
+          </property>
+          <property name="columnCount">
+           <number>3</number>
+          </property>
+          <attribute name="headerVisible">
+           <bool>true</bool>
+          </attribute>
+          <attribute name="headerCascadingSectionResizes">
+           <bool>true</bool>
+          </attribute>
+          <attribute name="headerDefaultSectionSize">
+           <number>111</number>
+          </attribute>
+          <attribute name="headerShowSortIndicator" stdset="0">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="headerStretchLastSection">
+           <bool>false</bool>
+          </attribute>
+          <column>
+           <property name="text">
+            <string>Item</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>modify</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>visible</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="frame">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>3</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(255, 255, 255);</string>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Sunken</enum>
+          </property>
+          <layout class="QGridLayout" name="gridLayout">
+           <item row="0" column="0">
+            <widget class="FoilPlotWidget" name="foilPlotWidget" native="true">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+               <horstretch>5</horstretch>
+               <verstretch>1</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>50</width>
+               <height>50</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="horizontalLayoutWidget_2">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QScrollArea" name="scrollArea">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>300</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>300</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::StrongFocus</enum>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollContents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>294</width>
+             <height>465</height>
+            </rect>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="1" column="0">
+             <widget class="QFrame" name="frame_foil">
+              <property name="autoFillBackground">
+               <bool>true</bool>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::NoFrame</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Sunken</enum>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_3">
+               <item row="0" column="0">
+                <layout class="QVBoxLayout" name="layout_foil"/>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QFrame" name="frame_analysis">
+              <property name="autoFillBackground">
+               <bool>true</bool>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::NoFrame</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Sunken</enum>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_4">
+               <item row="0" column="0">
+                <layout class="QVBoxLayout" name="layout_analysis"/>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QFrame" name="frame_mode">
+              <property name="autoFillBackground">
+               <bool>true</bool>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::NoFrame</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Sunken</enum>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_5">
+               <item row="0" column="0">
+                <layout class="QVBoxLayout" name="layout_mode"/>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QStackedWidget" name="stackedWidget_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>6</horstretch>
+            <verstretch>5</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(255, 255, 255);</string>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Sunken</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1684</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFoilBoXX">
+    <property name="title">
+     <string>FoilBoXX</string>
+    </property>
+    <widget class="QMenu" name="menuadd_Airfoil_from">
+     <property name="title">
+      <string>add Airfoil from..</string>
+     </property>
+     <addaction name="actionAirfoilfile"/>
+     <addaction name="actionCoords"/>
+    </widget>
+    <addaction name="separator"/>
+    <addaction name="menuadd_Airfoil_from"/>
+    <addaction name="separator"/>
+    <addaction name="separator"/>
+    <addaction name="actionquit"/>
+   </widget>
+   <widget class="QMenu" name="menuAirfoil">
+    <property name="title">
+     <string>Airfoil</string>
+    </property>
+    <addaction name="separator"/>
+    <addaction name="actionsave"/>
+    <addaction name="actionsave_As"/>
+    <addaction name="actiondelete_Airfoil"/>
+    <addaction name="separator"/>
+    <addaction name="actionset_Name"/>
+    <addaction name="separator"/>
+    <addaction name="actionadd_ShapeFunction"/>
+    <addaction name="actiondelete_ShapeFunction"/>
+    <addaction name="actionadd_FoilMode"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuFoilMode">
+    <property name="title">
+     <string>FoilMode</string>
+    </property>
+    <addaction name="separator"/>
+    <addaction name="actiondelete_FoilMode"/>
+    <addaction name="separator"/>
+    <addaction name="actionadd_AnalysisPoint"/>
+    <addaction name="actiondelete_AnalysisPoint"/>
+    <addaction name="separator"/>
+    <addaction name="actionadd_Polar"/>
+    <addaction name="actiondelete_Polar"/>
+    <addaction name="actionsave_Coords"/>
+    <addaction name="actionsave_flapCoords"/>
+   </widget>
+   <addaction name="menuFoilBoXX"/>
+   <addaction name="menuAirfoil"/>
+   <addaction name="menuFoilMode"/>
+  </widget>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="text">
+    <string>Preferences</string>
+   </property>
+  </action>
+  <action name="actionfoilVisible">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Toggle Visible</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+G</string>
+   </property>
+  </action>
+  <action name="actionmodeVisible">
+   <property name="text">
+    <string>Toggle Visible</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+M</string>
+   </property>
+  </action>
+  <action name="actionFoilWindow">
+   <property name="text">
+    <string>FoilWindow</string>
+   </property>
+  </action>
+  <action name="actionPressureWindow">
+   <property name="text">
+    <string>PressureWindow</string>
+   </property>
+  </action>
+  <action name="actionPolarWindow">
+   <property name="text">
+    <string>PolarWindow</string>
+   </property>
+  </action>
+  <action name="actionadd_FoilMode">
+   <property name="text">
+    <string>add FoilMode</string>
+   </property>
+  </action>
+  <action name="actionColor">
+   <property name="text">
+    <string>Color</string>
+   </property>
+  </action>
+  <action name="actionparametrize">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>parametrize</string>
+   </property>
+  </action>
+  <action name="actionAirfoils">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>airfoils</string>
+   </property>
+  </action>
+  <action name="actioncpPlot">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>cp-Plot</string>
+   </property>
+  </action>
+  <action name="actionPolars">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>polars</string>
+   </property>
+  </action>
+  <action name="actionsave">
+   <property name="text">
+    <string>save Airfoil</string>
+   </property>
+  </action>
+  <action name="actionAirfoilfile">
+   <property name="text">
+    <string>Airfoilfile *.af</string>
+   </property>
+  </action>
+  <action name="actionCoords">
+   <property name="text">
+    <string>Coords *.dat</string>
+   </property>
+  </action>
+  <action name="actiondelete_Airfoil">
+   <property name="text">
+    <string>Delete Airfoil</string>
+   </property>
+  </action>
+  <action name="actiondelete_FoilMode">
+   <property name="text">
+    <string>Delete FoilMode</string>
+   </property>
+  </action>
+  <action name="actionCheckOut_Parametrization">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>CheckOut Parametrization</string>
+   </property>
+  </action>
+  <action name="actionCheckOut_Coords">
+   <property name="text">
+    <string>CheckOut Coords</string>
+   </property>
+  </action>
+  <action name="actionFocus_this_Mode">
+   <property name="text">
+    <string>Focus this Mode</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionadd_AnalysisPoint">
+   <property name="text">
+    <string>add AnalysisPoint</string>
+   </property>
+  </action>
+  <action name="actionadd_ShapeFunction">
+   <property name="text">
+    <string>add ShapeFunction</string>
+   </property>
+  </action>
+  <action name="actionadd_Polar">
+   <property name="text">
+    <string>add Polar</string>
+   </property>
+  </action>
+  <action name="actionset_Name">
+   <property name="text">
+    <string>set Name</string>
+   </property>
+  </action>
+  <action name="actionsave_As">
+   <property name="text">
+    <string>save Airfoil as...</string>
+   </property>
+  </action>
+  <action name="actionquit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="actiondelete_AnalysisPoint">
+   <property name="text">
+    <string>delete AnalysisPoint</string>
+   </property>
+  </action>
+  <action name="actiondelete_Polar">
+   <property name="text">
+    <string>delete Polar</string>
+   </property>
+  </action>
+  <action name="actioncalc_AllPolars">
+   <property name="text">
+    <string>calc all Polars</string>
+   </property>
+  </action>
+  <action name="actiondelete_ShapeFunction">
+   <property name="text">
+    <string>delete ShapeFunction</string>
+   </property>
+  </action>
+  <action name="actionsave_Coords">
+   <property name="text">
+    <string>save Coords</string>
+   </property>
+  </action>
+  <action name="actionsave_flapCoords">
+   <property name="text">
+    <string>save flapCoords</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>FoilPlotWidget</class>
+   <extends>QWidget</extends>
+   <header>FoilPlotWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../resources/resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>
