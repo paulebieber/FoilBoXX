@@ -1,1 +1,0 @@
-/usr/bin/c++ -fPIC -g -shared -Wl,-soname,libxfoil-cpp.so -o libxfoil-cpp.so CMakeFiles/xfoil-cpp.dir/xfoil-cpp_autogen/mocs_compilation.cpp.o CMakeFiles/xfoil-cpp.dir/xfoil-cpp/XFoil.cpp.o 
