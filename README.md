@@ -12,7 +12,7 @@ __External Libraries:__
 __For compiling from source install on your system:__
 - openBlas (on arch linux only https://aur.archlinux.org/packages/openblas-lapack worked for use with dlib)
 - qt5 (packages qt5-default and on apt also: qtbase5-dev)
-- Temporary fix for xfoil-cpp ("Memset not declared"): Modify XFoil.h: add "#include <cstring>" to headers
+- Temporary fix for xfoil-cpp ("Memset not declared"): Modify XFoil.h: add "#include \<cstring\>" to headers
 
 __Roadmap:__\
 In further Developement, the following functionality is planned:
