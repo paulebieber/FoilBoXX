@@ -107,7 +107,7 @@ bool QwtCustomPlot::eventFilter(QObject* obj, QEvent* event) {
         
         //When Zooming via MouseWheel
         ////////////////////////////
-        auto* mouseEvent = static_cast<QWheelEvent*>(event);
+        QWheelEvent* mouseEvent = static_cast<QWheelEvent*>(event);
         double step = 1-zoomStep*mouseEvent->angleDelta().y()/600.0;
 
         QPointF pos = transform(mouseEvent->pos());

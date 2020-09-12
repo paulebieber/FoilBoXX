@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.18)
 project(FoilBoXX)
-#set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 11)
 
 # version
 add_definitions( -DFOILBOXX_VERSION_STRING="0.5.0" )
@@ -40,6 +40,8 @@ set(RESOURCES resources/resources.qrc)
 add_executable(FoilBoXX ${RESOURCES})
 add_subdirectory(src) # Adds all headers and sources located in /src to executable,
 # like defined in src/CMakeLists, also sets include Directories
+
+target_link_libraries(FoilBoXX Airfoil XfoilSession SplineFunctions QwtCustomPlot)
 
 target_link_libraries(FoilBoXX
         Qt5::Widgets

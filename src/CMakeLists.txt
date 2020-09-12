@@ -11,4 +11,3 @@ add_subdirectory(SplineFunctions SplineFunctions)
 add_subdirectory(QwtCustomPlot QwtCustomPlot)
 
 target_include_directories(FoilBoXX PRIVATE "." "Windows")
-target_link_libraries(FoilBoXX Airfoil XfoilSession SplineFunctions QwtCustomPlot)

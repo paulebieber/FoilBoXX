@@ -10,6 +10,7 @@ __External Libraries:__
 - openBlas (https://www.openblas.net/), BSD
 
 __For compiling from source install on your system:__
+- after cloning do a git submodule update --init
 - openBlas (on arch linux only https://aur.archlinux.org/packages/openblas-lapack worked for use with dlib)
 - qt5 (packages qt5-default and on apt also: qtbase5-dev)
 - Temporary fix for xfoil-cpp ("Memset not declared"): Modify XFoil.h: add "#include \<cstring\>" to headers
