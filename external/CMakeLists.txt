@@ -3,7 +3,7 @@
 add_subdirectory(dlib)
 
 #Add armadillo Submodule
-add_subdirectory(armadillo)
+add_subdirectory(armadillo-code)
 
 #Add qwt (no CMakeLists.txt given)
 add_library(qwt SHARED)

@@ -1,0 +1,9 @@
+[submodule "external/armadillo-code"]
+	path = external/armadillo-code
+	url = https://gitlab.com/conradsnicta/armadillo-code.git
+[submodule "external/dlib"]
+	path = external/dlib
+	url = https://github.com/davisking/dlib.git
+[submodule "external/qwt"]
+	path = external/qwt
+	url = https://github.com/opencor/qwt.git
