@@ -4,6 +4,7 @@ project(FoilBoXX)
 
 # version
 add_definitions( -DFOILBOXX_VERSION_STRING="0.5.0" )
+add_definitions( -DDYNAMIC_ARCH=TRUE )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
