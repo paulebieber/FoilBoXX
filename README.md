@@ -14,7 +14,6 @@ __For compiling from source:__
 - after cloning do a git submodule update --init
 - install openBlas (on arch linux only https://aur.archlinux.org/packages/openblas-lapack worked for use with dlib)
 - install Qt5.9.9 (best via https://www.qt.io/offline-installers)
-
 - Information: Temporary fix for xfoil-cpp ("Memset not declared"): Modified XFoil.h: added "#include \<cstring\>" to headers
 
 __Roadmap:__\
