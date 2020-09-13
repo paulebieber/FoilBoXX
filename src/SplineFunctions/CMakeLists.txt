@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 
 project(SplineFunctions)
 
-add_library(SplineFunctions src/SplineFunctions.cpp)
+add_library(SplineFunctions STATIC src/SplineFunctions.cpp)
 
 target_link_libraries(SplineFunctions PUBLIC armadillo PRIVATE dlib::dlib)
 

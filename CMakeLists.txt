@@ -7,6 +7,7 @@ add_definitions( -DFOILBOXX_VERSION_STRING="0.5.0" )
 add_definitions( -DDYNAMIC_ARCH=TRUE )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+list(APPEND CMAKE_PREFIX_PATH "~/Qt5.9.9/5.9.9/gcc_64/lib/cmake")
 
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
 # set(CMAKE_INCLUDE_CURRENT_DIR ON)

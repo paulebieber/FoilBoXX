@@ -31,15 +31,17 @@ BernsteinShapeInterface::~BernsteinShapeInterface(){
 QDataStream& operator<<(QDataStream& out, const BernsteinShapeInterface& shape){
 
     out << QString("BernsteinShape");
-    out << shape.side;
-    out << QVector<double>(shape.coefficients.begin(),shape.coefficients.end());
+    out << (int)shape.side;
+    out << QVector<double>::fromStdVector(arma::conv_to<std::vector<double>>::from(shape.coefficients));
     return out;
 
 }
 
 QDataStream& operator>>(QDataStream& in, BernsteinShapeInterface& shape){
 
-    in >> shape.side;
+    int sideInt;
+    in >> sideInt;
+    shape.side = (BernsteinShapeInterface::sideType)sideInt;
     QVector<double> vec;
     in >> vec;
     std::vector<double> vec2(vec.begin(),vec.end());

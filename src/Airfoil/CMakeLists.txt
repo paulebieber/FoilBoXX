@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 project(Airfoil)
 
-add_library(Airfoil
+add_library(Airfoil STATIC
         src/Airfoil.cpp
         src/NoseBezier.cpp
         src/ShapeFunction.cpp
