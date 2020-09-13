@@ -12,6 +12,7 @@ __External Libraries:__
 __For compiling from source:__
 - Check for right CMAKE_PREFIX_PATH for including the Qt cmake folder in the CMakeLists.txt
 - after cloning do a git submodule update --init
+- install mesa-common-dev (packagename for apt)
 - install openBlas (on arch linux only https://aur.archlinux.org/packages/openblas-lapack worked for use with dlib)
 - install Qt5.9.9 (best via https://www.qt.io/offline-installers)
 - Information: Temporary fix for xfoil-cpp ("Memset not declared"): Modified XFoil.h: added "#include \<cstring\>" to headers
