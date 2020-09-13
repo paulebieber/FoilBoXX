@@ -10,6 +10,7 @@ __External Libraries:__
 - openBlas (https://www.openblas.net/), BSD
 
 __For compiling from source:__
+- For ubuntu use snap to get the latest cmake version
 - Check for right CMAKE_PREFIX_PATH for including the Qt cmake folder in the CMakeLists.txt
 - after cloning do a git submodule update --init
 - install mesa-common-dev (packagename for apt)
