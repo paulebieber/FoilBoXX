@@ -9,12 +9,13 @@ __External Libraries:__
 - armadillo (http://arma.sourceforge.net/), Apache 2.0
 - openBlas (https://www.openblas.net/), BSD
 
-__For compiling from source install on your system:__
+__For compiling from source:__
 - Check for right CMAKE_PREFIX_PATH for including the Qt cmake folder in the CMakeLists.txt
 - after cloning do a git submodule update --init
-- openBlas (on arch linux only https://aur.archlinux.org/packages/openblas-lapack worked for use with dlib)
-- qt5 (packages qt5-default and on apt also: qtbase5-dev)
-- Temporary fix for xfoil-cpp ("Memset not declared"): Modified XFoil.h: added "#include \<cstring\>" to headers
+- install openBlas (on arch linux only https://aur.archlinux.org/packages/openblas-lapack worked for use with dlib)
+- install Qt5.9.9 (best via https://www.qt.io/offline-installers)
+
+- Information: Temporary fix for xfoil-cpp ("Memset not declared"): Modified XFoil.h: added "#include \<cstring\>" to headers
 
 __Roadmap:__\
 In further Developement, the following functionality is planned:
