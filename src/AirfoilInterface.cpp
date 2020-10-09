@@ -91,8 +91,8 @@ void AirfoilInterface::setupInterface(){
     connect(ui.doubleSpinBox_fkChordFactor,QOverload<double>::of(&QDoubleSpinBox::valueChanged),[this](double x){setAttribute(setFkChordFactor,x,true);});
     connect(ui.doubleSpinBox_turbTop,QOverload<double>::of(&QDoubleSpinBox::valueChanged),[this](double x){setAttribute(setTurbTop,x,true);});
     connect(ui.doubleSpinBox_turbBot,QOverload<double>::of(&QDoubleSpinBox::valueChanged),[this](double x){setAttribute(setTurbBot,x,true);});
-    connect(ui.groupBox_fk,&QGroupBox::toggled,[this](bool state){setAttribute(setFk,state,true);});
-    connect(ui.groupBox_Turb,&QGroupBox::toggled,[this](bool state){setAttribute(setTurbOn,state,true);});
+    connect(ui.groupBox_fk,&QGroupBox::toggled,[this](bool state){setAttribute(setFk,state,true);ui.doubleSpinBox_fkChordFactor->setEnabled(state);});
+    connect(ui.groupBox_Turb,&QGroupBox::toggled,[this](bool state){setAttribute(setTurbOn,state,true);ui.doubleSpinBox_turbBot->setEnabled(state);ui.doubleSpinBox_turbTop->setEnabled(state);});
     connect(ui.pushButton_calcPolarAll,&QPushButton::clicked,[this](){emit calcAllPolars();});
 
     ui.doubleSpinBox_yPlus->setRange(0.0,0.3);
