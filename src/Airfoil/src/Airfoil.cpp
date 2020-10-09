@@ -412,7 +412,7 @@ template <typename T> void Airfoil::setAttribute(attributes kind, T value, bool 
         case setYPlus: yPlus = value; break;
         case setYMinus: yMinus = value; break;
         case setNoseY: noseY = value; break;
-        case setFlapYAbsolute: flapPivot(1) = value; break;
+        case setFlapYAbsolute: flapPivot(1) = value;flapByRel=false; break;
         case setFlapYRelative: flapRelY = value;flapByRel = true; break;
         case setTurbTop: turbTopPt(0) = value; break;
         case setTurbBot: turbBotPt(0) = value; break;
