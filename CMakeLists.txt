@@ -3,7 +3,7 @@ project(FoilBoXX)
 set(CMAKE_CXX_STANDARD 11)
 
 # version
-add_definitions( -DFOILBOXX_VERSION_STRING="0.5.0" )
+add_definitions( -DFOILBOXX_VERSION_STRING="0.5.1" )
 add_definitions( -DDYNAMIC_ARCH=TRUE )
 
 #resources for Qt-Pictures
@@ -25,8 +25,8 @@ find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets PrintSupport Svg Xml Concu
 # OpenBlas
 #list(APPEND CMAKE_PREFIX_PATH C:\\Users\\Paul\\OpenBLAS\\build) #Windows Machines
 #set(BLAS_LIBRARIES C:\\Users\\Paul\\OpenBLAS\\build)
-find_package(OpenBLAS REQUIRED)
-#find_package(BLAS REQUIRED)
+#find_package(OpenBLAS REQUIRED)
+find_package(BLAS REQUIRED)
 
 #qwt
 add_subdirectory(external)

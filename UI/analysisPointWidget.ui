@@ -42,7 +42,7 @@
       <item row="2" column="1">
        <widget class="QDoubleSpinBox" name="doubleSpinBox_re">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="maximumSize">
          <size>
@@ -88,7 +88,7 @@
       <item row="0" column="1">
        <widget class="QDoubleSpinBox" name="doubleSpinBox_nCrit">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="maximumSize">
          <size>

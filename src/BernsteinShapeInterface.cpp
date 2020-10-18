@@ -148,7 +148,7 @@ void BernsteinShapeInterface::modify(QPointF pt, QPointF delta, bool negative){
     double weight = 0.2;
     arma::vec addCoefs = xs;
     for(int i = 0; i<xs.n_elem; ++i){
-        if(abs(pt.x()-xs[i])<width){
+        if(fabs(pt.x()-xs[i])<width){
            addCoefs[i] = weight*(1+cos(M_PI*(pt.x()-xs[i])/width));
         }else{addCoefs[i] = 0.0;}
     }
