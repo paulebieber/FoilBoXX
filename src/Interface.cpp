@@ -141,7 +141,10 @@ void Interface::loadAirfoil(){
         in >> magic;
         in >> fileVersion;
 
-        if(magic != (quint32)0xA0C0C0B0){return;}
+        //Compatible Savefileformats for current Reading: 0.5.0, 0.5.1 (every release since impletation of version
+        //tracking)
+        
+        if((magic != (quint32)0xA0C0C0B0)){return;}
 
         newFoil(true);
         in >> *airfoils.back();
