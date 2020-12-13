@@ -34,6 +34,8 @@ PolarGoal::PolarGoal(QwtCustomPlot* plot, Polar* polar):HierarchyElement(polar),
     goalPen.setColor(Qt::gray);
     goalPen.setStyle(Qt::DashLine);
     setItemText("Goal");
+
+    calcDifferenceToPolar();
 }
 
 PolarGoal::~PolarGoal(){
@@ -82,50 +84,54 @@ void PolarGoal::calcDifferenceToPolar(){
     cLCD.col(1) = polarPts.col(1);
 
     //Coordinates for visualizing area
-    areaCoords = arma::mat((goalPts.n_rows-1)*n_disc*2,2);
+    if (cLCD.n_rows > 0){
 
-    if(normalDiff){
-        cLCD.col(1) *= viewRatio;
+        areaCoords = arma::mat((goalPts.n_rows-1)*n_disc*2,2);
 
-        for(int i=1; i<goalPts.n_rows; i++){
-            arma::mat pts(n_disc,2);
-            pts.col(0) = arma::linspace(goalPts(i-1,0),goalPts(i,0),pts.n_rows);
-            pts.col(1) = arma::linspace(viewRatio*goalPts(i-1,1),viewRatio*goalPts(i,1),pts.n_rows);
-            double diff =  (goalPts(i,1)-goalPts(i-1,1))/(pts.n_rows-1);
-            for(int j=0; j<pts.n_rows; j++){
-                arma::vec ptOnPolar = closestPointToPoint(cLCD,pts.row(j).t(),cLCD(0,0),cLCD.tail_rows(1)(0));
-                ptOnPolar(1) *= 1000/viewRatio;
-                pts(j,1) *= 1000/viewRatio;
+        if(normalDiff){
+            cLCD.col(1) *= viewRatio;
 
-                area += diff*distanceBetweenPoints(ptOnPolar,pts.row(j).t());
+            for(int i=1; i<goalPts.n_rows; i++){
+                arma::mat pts(n_disc,2);
+                pts.col(0) = arma::linspace(goalPts(i-1,0),goalPts(i,0),pts.n_rows);
+                pts.col(1) = arma::linspace(viewRatio*goalPts(i-1,1),viewRatio*goalPts(i,1),pts.n_rows);
+                double diff =  (goalPts(i,1)-goalPts(i-1,1))/(pts.n_rows-1);
+                for(int j=0; j<pts.n_rows; j++){
+                    arma::vec ptOnPolar = closestPointToPoint(cLCD,pts.row(j).t(),cLCD(0,0),cLCD.tail_rows(1)(0));
+                    ptOnPolar(1) *= 1000/viewRatio;
+                    pts(j,1) *= 1000/viewRatio;
 
-                areaCoords.row(count) = pts.row(j);
-                areaCoords.row(count+1)= ptOnPolar.t();
-                count+=2;
+                    area += diff*distanceBetweenPoints(ptOnPolar,pts.row(j).t());
+
+                    areaCoords.row(count) = pts.row(j);
+                    areaCoords.row(count+1)= ptOnPolar.t();
+                    count+=2;
+                }
+            }
+        }else{
+            for(int i=1; i<goalPts.n_rows; i++){
+                arma::mat pts(n_disc,2);
+                pts.col(0) = arma::linspace(goalPts(i-1,0),goalPts(i,0),pts.n_rows);
+                pts.col(1) = arma::linspace(goalPts(i-1,1),goalPts(i,1),pts.n_rows);
+                double diff =  distanceBetweenPoints(goalPts.row(i).t(),goalPts.row(i-1).t())/(pts.n_rows-1);
+                for(int j=0; j<pts.n_rows; j++){
+                    double ptcD = interpolate(cLCD,pts(j,0));
+                    arma::vec ptOnPolar{pts(j,0),ptcD};
+                    ptOnPolar(1) *= 1000;
+                    pts(j,1) *= 1000;
+
+                    area += diff*distanceBetweenPoints(ptOnPolar,pts.row(j).t());
+
+                    areaCoords.row(count) = pts.row(j);
+                    //std::cout  << ptOnPolar.t() << std::endl;
+                    areaCoords.row(count+1)= ptOnPolar.t();
+                    count+=2;
+                }
             }
         }
     }else{
-        for(int i=1; i<goalPts.n_rows; i++){
-            arma::mat pts(n_disc,2);
-            pts.col(0) = arma::linspace(goalPts(i-1,0),goalPts(i,0),pts.n_rows);
-            pts.col(1) = arma::linspace(goalPts(i-1,1),goalPts(i,1),pts.n_rows);
-            double diff =  distanceBetweenPoints(goalPts.row(i).t(),goalPts.row(i-1).t())/(pts.n_rows-1);
-            for(int j=0; j<pts.n_rows; j++){
-                double ptcD = interpolate(cLCD,pts(j,0));
-                arma::vec ptOnPolar{pts(j,0),ptcD};
-                ptOnPolar(1) *= 1000;
-                pts(j,1) *= 1000;
-
-                area += diff*distanceBetweenPoints(ptOnPolar,pts.row(j).t());
-
-                areaCoords.row(count) = pts.row(j);
-                //std::cout  << ptOnPolar.t() << std::endl;
-                areaCoords.row(count+1)= ptOnPolar.t();
-                count+=2;
-            }
-        }
+        areaCoords = arma::mat(0,2);
     }
-
     emit calced();
 }
 

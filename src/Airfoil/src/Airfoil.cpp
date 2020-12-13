@@ -39,18 +39,18 @@ void Airfoil::changeShapeSpacings(){
 
 void Airfoil::setClassShapes(){
 
-    double noseEnd = 0.05;
-    double nNose = 35;
+    double noseEnd = 0.03;
+    double nNose = 15;
 
     double delta = 0.03;
     double x1 = flapPivot(0);
-    double nNoseTo1 = 50;
+    double nNoseTo1 = 35;
     double x2 = flapPivot(0);
-    double n1To2 = 25;
-    double nToEnd = 30;
-    double nFk = 15;
+    double n1To2 = 20;
+    double nToEnd = 20;
+    double nFk = 10;
 
-    arma::vec spacingNose = pow(arma::linspace(0, 0.5, nNose),2)*noseEnd/pow(0.5,2);
+    arma::vec spacingNose = pow(arma::linspace(0, 0.5, nNose),3)*noseEnd/pow(0.5,3);
 
     arma::vec spacingNoseTo1 = arma::linspace(noseEnd, x1-delta, nNoseTo1);
     spacingNoseTo1 = spacingNoseTo1.subvec(1,spacingNoseTo1.size()-1);
