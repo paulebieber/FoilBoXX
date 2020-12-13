@@ -10,7 +10,7 @@
 Airfoil::Airfoil():
     teThickness(0.005),flapRelY(0.5),flapByRel(true),flapPivot({0.8,0.0}),
     noseY(0.0),fk(false),fkChordfactor(1.14), turbOn(false), turbBotPt({1.0,0}),turbTopPt({1.0,0}),
-    yPlus(0.0),yMinus(0.0){
+    yPlus(0.0),yMinus(0.0),changedN(false){
 
     setClassShapes();
     baseCoords();
@@ -103,6 +103,7 @@ void Airfoil::setClassShapes(){
     lowerClassCoords.col(1) = -0.15*pow(spacingLower, 0.5) % pow(1 - spacingLower, 1);
 
     changeShapeSpacings();
+    changedN = true;
 }
 
 void Airfoil::baseCoords() {
@@ -153,11 +154,11 @@ void Airfoil::baseCoords() {
         double upperDist = distanceBetweenPoints(flapPivot,upperEndPt);
         double upperFac = flapPivot(0)+sqrt(pow(upperDist,2)-pow(flapPivot(1)-upperBaseCoords(upperBaseCoords.n_rows-1,1),2));
         upperBaseCoords.col(0)*=upperFac;
-        upperFlapPtDesign = closestPointToPoint(upperBaseCoords,flapPivot);
+        upperFlapPtDesign = closestPointToPoint(upperBaseCoords,flapPivot,flapPivot(0)-0.4,2.0);
         etaDesignUpper = atan2(teThickness/2-flapPivot(1),1-flapPivot(0)) - atan2(upperBaseCoords(upperBaseCoords.n_rows-1,1)-flapPivot(1),upperBaseCoords(upperBaseCoords.n_rows-1,0)-flapPivot(0));
         tempFlapUpper = rotate(upperBaseCoords,flapPivot,etaDesignUpper);
     }else{
-        upperFlapPtDesign = closestPointToPoint(upperBaseCoords,flapPivot);
+        upperFlapPtDesign = closestPointToPoint(upperBaseCoords,flapPivot,flapPivot(0)-0.4,2.0);
         double upperFlapPtDesignDer = interpolate(upperBaseCoords,upperFlapPtDesign(0),true);
         etaDesignUpper = searchEtaDesign(upperBaseCoords,upperFlapPtDesign,upperFlapPtDesignDer,flapPivot,upperEndPt);
         arma::vec upperEndPtEta = rotate(upperEndPt,flapPivot,-etaDesignUpper);
@@ -184,7 +185,7 @@ void Airfoil::baseCoords() {
     double lowerFac = flapPivot(0)+sqrt(pow(lowerDist,2)-pow(flapPivot(1)-lowerBaseCoords(lowerBaseCoords.n_rows-1,1),2));
     lowerBaseCoords.col(0)*=lowerFac;
 
-    lowerFlapPtDesign = closestPointToPoint(lowerBaseCoords,flapPivot);
+    lowerFlapPtDesign = closestPointToPoint(lowerBaseCoords,flapPivot,flapPivot(0)-0.4,2.0);
     etaDesignLower = atan2(-teThickness/2-flapPivot(1),1-flapPivot(0)) - atan2(lowerBaseCoords(lowerBaseCoords.n_rows-1,1)-flapPivot(1),
             lowerBaseCoords(lowerBaseCoords.n_rows-1,0)-flapPivot(0));
     tempFlapLower = rotate(lowerBaseCoords,flapPivot,etaDesignLower);
@@ -306,7 +307,8 @@ void Airfoil::baseCoords() {
         fkCoordsBotRetracted = arma::mat{0.0};
     }
 
-    changedBaseCoords();
+    changedBaseCoords(changedN);
+    changedN = false;
 }
 
 std::tuple<std::vector<arma::mat>,arma::vec, arma::vec> Airfoil::getModeCoords(bool fkExtracted, double eta){

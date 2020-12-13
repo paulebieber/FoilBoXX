@@ -26,14 +26,16 @@ protected:
     void setCoordsReference(arma::mat* coords);
 
     arma::mat& coords;
-    double& turbTop;
-    double& turbBot;
+    double turbTop;
+    double turbBot;
     arma::vec xs;
     arma::vec pressure;
     arma::vec velocity;
     arma::vec pressureVisc;
     arma::mat polar = arma::mat(0,6);
     arma::mat hFacTop,hFacBot;
+
+    int n_errors;
 
     bool setAnalysis(double re, double nCrit, bool reCa1);
     void calcSingle(bool cl, double value, bool visc = false);
@@ -43,8 +45,9 @@ protected:
     double xfoilAlpha(){return foil->alpha() * 180/3.14159;}
     double xfoilCM(){return foil->cm;}
     double xfoilCA(){return foil->cl;}
-    double xfoilThickness(){return foil->thickb;}
 
 public:
-    XfoilSession(arma::mat& coords, double& turbTop, double& turbBot);
+    double calcJustThickness();
+    XfoilSession(arma::mat& coords, double turbTop = 1, double turbBot = 1);
+    arma::mat& getPolar(){return polar;}
 };

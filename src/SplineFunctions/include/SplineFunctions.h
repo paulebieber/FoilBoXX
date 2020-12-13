@@ -8,9 +8,10 @@
 
 arma::mat rotate(const arma::mat& toRotate, const arma::vec& pt, const double& angle);
 
-double interpolate(const arma::mat& array, const double x, const bool der=false, const bool linear = false);
+double interpolate(const arma::mat& array, const double x, const bool der=false, const bool linear = true);
 
-arma::vec closestPointToPoint(const arma::mat& arrayCurve, const arma::vec& pt);
+arma::vec closestPointToPoint(const arma::mat& arrayCurve, const arma::vec& pt,
+        const double lowerBound = 0.4, const double upperBound = 1.0);
 
 double searchEtaDesign(const arma::mat& coordsToFit, const arma::vec& aim, const double aimDer, const arma::vec& flapPivot, const arma::vec& neutralPt);
 

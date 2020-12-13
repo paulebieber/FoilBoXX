@@ -16,7 +16,6 @@ Q_OBJECT
     std::vector<HierarchyElement*> children{};
 
     bool visible;
-    bool active;
 
 public:
     HierarchyElement(QTreeWidget* master);
@@ -37,6 +36,7 @@ protected:
     QWidget widget;
 
     bool modifying;
+    bool active;
 
     void setVisible(bool visible, bool changeBox);
     void setBold(bool bold);

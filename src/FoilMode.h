@@ -28,7 +28,6 @@ friend QDataStream& operator>>(QDataStream& in, FoilMode& mode); //For Serrializ
 
     //Coords
     arma::mat coordsAero;
-    arma::mat flosse;
     arma::mat flapTop;
     arma::mat flapBot;
     arma::mat fkTop;

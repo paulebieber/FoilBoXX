@@ -1,12 +1,15 @@
 // Created by paul on 3/11/20.
 
 #include "Interface.h"
+#include <dlib/optimization.h>
+#include <dlib/matrix.h>
 #include <qnamespace.h>
 #include <QFileDialog>
 #include <QInputDialog>
 #include <QScrollBar>
 #include <QTimer>
 #include <QDebug>
+#include <vector>
 
 Interface::Interface(QApplication& app, QString version):app(app), version(version){
 
@@ -109,6 +112,11 @@ void Interface::writeAirfoil(AirfoilInterface* airfoil){
             for(Polar* polar : polars){
                 if(polar->getMode()==mode){
                     out << (*polar);
+                    for(PolarGoal* goal : polarGoals){
+                        if(goal->getPolar() == polar){
+                            out << (*goal);
+                        }
+                    }
                 }
             }
         }
@@ -135,14 +143,10 @@ void Interface::loadAirfoil(){
         QDataStream in(&file);
 
         quint32 magic;
-        QString fileVersion;
         in.setVersion(QDataStream::Qt_5_0);
 
         in >> magic;
         in >> fileVersion;
-
-        //Compatible Savefileformats for current Reading: 0.5.0, 0.5.1 (every release since impletation of version
-        //tracking)
         
         if((magic != (quint32)0xA0C0C0B0)){return;}
 
@@ -168,6 +172,11 @@ void Interface::loadAirfoil(){
             else if(string == QString("Polar")){
                 newPolar(modes.back());
                 in >> *polars.back();
+            }
+            //and Goals
+            else if(string == QString("PolarGoal")){
+                newPolarGoal(polars.back());
+                in >> *polarGoals.back();
             }
             //and Bernsteins 
             else if(string == QString("BernsteinShape")){
@@ -220,6 +229,15 @@ void Interface::deleteAirfoil(AirfoilInterface* airfoil){
             if(mode->getAirfoil() == airfoil){deleteMode(mode);}
         }
 
+        for(FoilPlot* foilPlot : foilPlots){
+            if(foilPlot->getAirfoil() == airfoil){
+                auto it = std::find(foilPlots.begin(),foilPlots.end(),foilPlot);
+                foilPlots.erase(it);
+                delete foilPlot;
+                break; //Only one foilPlot per Foil, easier
+            }
+        }
+
         //ShapeDeletion done in AirfoilDeconstructor, because tightly connected
         delete airfoil;
         auto it = std::find(airfoils.begin(),airfoils.end(),airfoil);
@@ -230,22 +248,25 @@ void Interface::deleteAirfoil(AirfoilInterface* airfoil){
 
 void Interface::deleteAnalysisPt(AnalysisPoint* pt){
 
-    if(analysisPts.size() > 1){
-        auto it = std::find(analysisPts.begin(),analysisPts.end(),pt);
-        analysisPts.erase(it);
-        delete pt;
-        activeAnalysisPt = analysisPts[0];
-    }
+    if(analysisPts.size() == 0){return;}
+    auto it = std::find(analysisPts.begin(),analysisPts.end(),pt);
+    analysisPts.erase(it);
+    delete pt;
+    if(analysisPts.size() > 0){activeAnalysisPt = analysisPts[0];}
 }
 
 void Interface::deletePolar(Polar* polar){
 
-    if(polars.size() != 1){
-        auto it = std::find(polars.begin(),polars.end(),polar);
-        polars.erase(it);
-        delete polar;
-        activePolar = polars[0];
+    if(polars.size() == 0){return;}
+    auto it = std::find(polars.begin(),polars.end(),polar);
+    polars.erase(it);
+    for(PolarGoal* polarGoal : polarGoals){
+        if(polarGoal->getPolar() == polar){
+            deletePolarGoal(polarGoal);
+        }
     }
+    delete polar;
+    if(polars.size() > 0){activePolar = polars[0];}
 }
 
 void Interface::deleteBernsteinShape(BernsteinShapeInterface* shape){
@@ -281,10 +302,12 @@ void Interface::deleteMode(FoilMode* mode){
 
 void Interface::newFoil(bool fromStart){
 
-    FoilPlot* foilPlot = new FoilPlot(foilPlotWidget);
-
-    AirfoilInterface* newAirfoil = new AirfoilInterface(treeView,"Base",foilPlot);
+    AirfoilInterface* newAirfoil = new AirfoilInterface(treeView,"Base");
     airfoils.push_back(newAirfoil);
+
+    //Add Plot
+    FoilPlot* foilPlot = new FoilPlot(foilPlotWidget,newAirfoil);
+    foilPlots.push_back(foilPlot);
 
     if (!fromStart){newFoilMode(newAirfoil);}
 
@@ -296,10 +319,13 @@ void Interface::newFoil(bool fromStart){
     connect(newAirfoil,&AirfoilInterface::calcAllPolars,[this,newAirfoil](){
             for(Polar* polar: polars){
                 if(polar->getMode()->getAirfoil() == newAirfoil){
-                    polar->simulateClicked();
                     polar->calcOnDemand();
+                    //polar->simulateClicked();
                 }
             }});
+
+    connect(newAirfoil,&AirfoilInterface::optimizePolars,[this,newAirfoil](){
+                    optimizePolars(newAirfoil);});
     
     newAirfoil->changed();
     newAirfoil->simulateClicked();
@@ -311,6 +337,25 @@ void Interface::newFoil(bool fromStart){
         //bernsteinShapes[bernsteinShapes.size()-2]->simulateClicked();
         modes.back()->simulateClicked();
     }
+}
+
+void Interface::optimizePolars(AirfoilInterface* airfoil){
+
+    std::vector<BernsteinShapeInterface*> shapes;
+    std::vector<PolarGoal*> optimizationPolarGoals;
+
+    for(BernsteinShapeInterface* shape : bernsteinShapes){
+        if(shape->getParent()==airfoil){
+            shapes.push_back(shape);
+        }
+    }
+    for(PolarGoal* polarGoal : polarGoals){
+        if(polarGoal->getPolar()->getMode()->getParent()==airfoil){
+            optimizationPolarGoals.push_back(polarGoal);
+        }
+    }
+    optimizationThread.setUp(activeAirfoil,shapes,optimizationPolarGoals);
+    optimizationThread.start();
 }
 
 void Interface::newFoilMode(AirfoilInterface* airfoil, bool fromStart, QTextStream* in){
@@ -343,23 +388,52 @@ void Interface::newAnalysisPoint(FoilMode* mode){
     layout_analysis->addWidget(pt->getWidget());
     connect(pt,&AnalysisPoint::activated,[this,pt](bool recursively){activeAnalysisPt=pt;stackedWidget_2->setCurrentWidget(pressurePlotWidget);
             if(!recursively){QTimer::singleShot(0,[this,pt](){scrollArea->ensureWidgetVisible(pt->getWidget());});}});
-    connect(pt,&AnalysisPoint::thickness,pt->getMode()->getAirfoil(),&AirfoilInterface::setThickness);
     mode->getAirfoil()->baseCoords();
     pt->simulateClicked();
 }
 
 void Interface::newPolar(FoilMode* mode){
 
-    Polar* polar = new Polar(polarPlotWidget->getPlots(),mode);
+    Polar* polar = new Polar(polarPlotWidget->getPlots(),mode,fileVersion);
     polars.push_back(polar);
 
     layout_analysis->addWidget(polar->getWidget());
+
     connect(polar,&Polar::activated,[this,polar](bool recursively){activePolar = polar;stackedWidget_2->setCurrentWidget(polarPlotWidget);
             if(!recursively){QTimer::singleShot(0,[this,polar](){scrollArea->ensureWidgetVisible(polar->getWidget());});}});
 
+    //QObject::connect(polar->thread,&WorkerThread::resultReady,this,[=](){
+    //        for(PolarGoal* polarGoal : polarGoals){
+    //            if(polarGoal->getPolar() == polar){polarGoal->calcDifferenceToPolar();}
+    //        }
+    //    },Qt::DirectConnection);
 
+    //newPolarGoal(polar);
     polar->simulateClicked();
-    //activePolar = polar;
+    //polar->calcOnDemand();
+}
+
+void Interface::newPolarGoal(Polar* polar){
+
+    PolarGoal* polarGoal = new PolarGoal(polarPlotWidget->getPlots()[0],polar);
+    polarGoals.push_back(polarGoal);
+
+    layout_analysis->addWidget(polarGoal->getWidget());
+
+    connect(polarGoal,&PolarGoal::activated,[this,polarGoal](bool recursively){activePolarGoal = polarGoal;
+            stackedWidget_2->setCurrentWidget(polarPlotWidget);
+            if(!recursively){QTimer::singleShot(0,[this,polarGoal](){scrollArea->ensureWidgetVisible(polarGoal->getWidget());});}});
+
+    polarGoal->simulateClicked();
+}
+
+void Interface::deletePolarGoal(PolarGoal* polarGoal){
+
+    if(polarGoals.size() == 0){return;}
+    auto it = std::find(polarGoals.begin(),polarGoals.end(),polarGoal);
+    polarGoals.erase(it);
+    delete polarGoal;
+    if(polarGoals.size() > 0){activePolarGoal = polarGoals[0];}
 }
 
 BernsteinShapeInterface* Interface::newBernsteinShape(AirfoilInterface* airfoil){
@@ -371,16 +445,22 @@ BernsteinShapeInterface* Interface::newBernsteinShape(AirfoilInterface* airfoil)
 
     layout_mode->addWidget(shape->getWidget());
 
-    connect(shape,&BernsteinShapeInterface::changed,[this](bool needsNewShape){if(needsNewShape){activeAirfoil->setClassShapes();};activeAirfoil->baseCoords();});
+    connect(shape,&BernsteinShapeInterface::changed,this,[=](bool needsNewShape){if(needsNewShape){activeAirfoil->setClassShapes();};
+            activeAirfoil->baseCoords();},Qt::DirectConnection);
     connect(shape,&BernsteinShapeInterface::activated,[this,shape](bool recursively){activeShape = shape;
             if(!recursively){QTimer::singleShot(0,[this,shape](){scrollArea->ensureWidgetVisible(shape->getWidget());});}});
-
-    connect(foilPlotWidget,&QwtCustomPlot::dragged,[this,shape](QPointF pt, QPointF delta){shape->modify(pt,delta,false);});
-    connect(pressurePlotWidget,&QwtCustomPlot::dragged,[this,shape](QPointF pt, QPointF delta){shape->modify(pt,delta,true);});
 
     shape->simulateClicked();
 
     return shape;
+}
+
+void Interface::plotPolar(Polar* polar){
+   polar->plot();
+}
+
+void Interface::plotShapes(BernsteinShape* shape){
+    static_cast<BernsteinShapeInterface*>(shape)->update();
 }
 
 void Interface::connectBarGeneral(){
@@ -390,6 +470,7 @@ void Interface::connectBarGeneral(){
     connect(actionsave_As,&QAction::triggered,[this](){saveAirfoilAs(activeAirfoil);});
     connect(actionadd_AnalysisPoint,&QAction::triggered,[this](){newAnalysisPoint(activeMode);});
     connect(actionadd_Polar,&QAction::triggered,[this](){newPolar(activeMode);});
+    connect(actionadd_PolarGoal,&QAction::triggered,[this](){newPolarGoal(activePolar);});
     connect(actionadd_FoilMode,&QAction::triggered,[this](){newFoilMode(activeAirfoil);});
     connect(actionadd_ShapeFunction,&QAction::triggered,[this](){newBernsteinShape(activeAirfoil);});
     connect(actionset_Name,&QAction::triggered,this,&Interface::setAirfoilName);
@@ -397,6 +478,7 @@ void Interface::connectBarGeneral(){
     connect(actiondelete_Airfoil,&QAction::triggered,[this]{deleteAirfoil(activeAirfoil);});
     connect(actiondelete_AnalysisPoint,&QAction::triggered,[this]{deleteAnalysisPt(activeAnalysisPt);});
     connect(actiondelete_Polar,&QAction::triggered,[this]{deletePolar(activePolar);});
+    connect(actiondelete_PolarGoal,&QAction::triggered,[this]{deletePolarGoal(activePolarGoal);});
     connect(actiondelete_FoilMode,&QAction::triggered,[this]{deleteMode(activeMode);});
     connect(actionCoords,&QAction::triggered,[this]{loadCoords();});
     connect(actiondelete_ShapeFunction,&QAction::triggered,[this]{deleteBernsteinShape(activeShape);});

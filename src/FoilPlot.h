@@ -2,23 +2,27 @@
 #pragma once
 
 #include "QwtCustomPlot.h" 
-#include "Airfoil.h"
+#include "AirfoilInterface.h"
 
 class FoilPlot: public QObject{
 
 Q_OBJECT
 
     std::vector<QwtPlotCurve*> baseCurves;
-    std::vector<arma::mat*> baseCoords;
+    arma::mat& upperBaseCoords;
+    arma::mat& lowerBaseCoords;
 
     QwtCustomPlot* plot;
     QPen basePen;
 
-    Airfoil* airfoil;
+    AirfoilInterface* airfoil;
     bool permanentInvisible;
 
+    std::vector<arma::mat*> baseCoords(){
+        return std::vector<arma::mat*>{&upperBaseCoords,&lowerBaseCoords};};
+
 public:
-    FoilPlot(QwtCustomPlot* plot);
+    FoilPlot(QwtCustomPlot* plot, AirfoilInterface* airfoil);
     ~FoilPlot();
     void connectToFoil(Airfoil* airfoil);
     void plotCoords();

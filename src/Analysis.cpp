@@ -2,7 +2,7 @@
 #include "Analysis.h"
 
 Analysis::Analysis(FoilMode* mode):HierarchyElement(mode),XfoilSession(mode->getCoords(),mode->getTurbTop(),mode->getTurbBot()),
-            calcMode(alphaCalc), re(1e6), nCrit(8){
+            calcMode(alphaCalc), re(1e6), nCrit(8), reCa1(false){
 
     connectToMode(mode);
 }

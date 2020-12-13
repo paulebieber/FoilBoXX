@@ -2,8 +2,8 @@
 #pragma once
 
 #include <QObject>
-#include "BernsteinShape.h"
 #include "QwtCustomPlot.h"
+#include "BernsteinShape.h"
 #include "HierarchyElement.h"
 #include "ui_shapeWidget.h"
 
@@ -48,6 +48,7 @@ public:
     ~BernsteinShapeInterface();
     void modify(QPointF pt, QPointF delta, bool negative);
     void setSide(BernsteinShape::sideType side);
+    void update();
 
 signals:
     void changed(bool needsNewSpacing=false);

@@ -144,6 +144,7 @@ bool QwtCustomPlot::eventFilter(QObject* obj, QEvent* event) {
         if(mouseEvent->button() == Qt::LeftButton){
             dragging = true;
             draggingCheckpoint = mouseEvent->pos();
+            if(dragging){emit startDrag(transform(mouseEvent->pos()));}
         }
     return true;
     
@@ -157,6 +158,7 @@ bool QwtCustomPlot::eventFilter(QObject* obj, QEvent* event) {
         }
         if(mouseEvent->button() == Qt::LeftButton){
             dragging = false;
+            emit dragFinished();
             return true;
         }
     }
