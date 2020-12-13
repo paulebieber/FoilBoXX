@@ -26,14 +26,15 @@ protected:
     void setCoordsReference(arma::mat* coords);
 
     arma::mat& coords;
-    double turbTop;
-    double turbBot;
+    double& turbTop;
+    double& turbBot;
     arma::vec xs;
     arma::vec pressure;
     arma::vec velocity;
     arma::vec pressureVisc;
     arma::mat polar = arma::mat(0,6);
     arma::mat hFacTop,hFacBot;
+    double unitTurb = 1;
 
     int n_errors;
 
@@ -48,6 +49,7 @@ protected:
 
 public:
     double calcJustThickness();
-    XfoilSession(arma::mat& coords, double turbTop = 1, double turbBot = 1);
+    XfoilSession(arma::mat& coords, double& turbTop, double& turbBot);
+    XfoilSession(arma::mat& coords);
     arma::mat& getPolar(){return polar;}
 };

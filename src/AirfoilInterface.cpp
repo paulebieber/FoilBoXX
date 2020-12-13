@@ -4,7 +4,7 @@
 #include <qnamespace.h>
 #include <QDebug>
 
-AirfoilInterface::AirfoilInterface(QTreeWidget* tree, QString name): thicknessXfoil(getFlosse(),1,1),HierarchyElement(tree),
+AirfoilInterface::AirfoilInterface(QTreeWidget* tree, QString name): thicknessXfoil(getFlosse()),HierarchyElement(tree),
     name(name), hasFile(false), flapRelChanged(true){
 
     connect(this,&AirfoilInterface::changed,this,[=](){

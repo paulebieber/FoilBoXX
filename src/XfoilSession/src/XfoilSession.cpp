@@ -2,8 +2,13 @@
 
 #include "XfoilSession.h"
 
-XfoilSession::XfoilSession(arma::mat& coords, double turbTop, double turbBot):
+XfoilSession::XfoilSession(arma::mat& coords, double& turbTop, double& turbBot):
     coords(coords), turbBot(turbBot), turbTop(turbTop){
+
+    }
+
+XfoilSession::XfoilSession(arma::mat& coords):
+    coords(coords), turbBot(unitTurb), turbTop(unitTurb){
 
     }
 
