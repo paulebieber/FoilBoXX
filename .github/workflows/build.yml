@@ -19,6 +19,9 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
+    - name: Recurse Submodules 
+      run: git submodule update --init
+
     - name: Install LinuxDeployQt 
       uses: wei/curl@v1
       with:
