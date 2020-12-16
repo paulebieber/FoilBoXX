@@ -51,7 +51,7 @@ Polar::~Polar() {
 QDataStream& operator<<(QDataStream& out, const Polar& polar){
 
     out << QString("Polar");
-    out << polar.calcMode;
+    out << (int)polar.calcMode;
     if (polar.calcMode == Analysis::clCalc){
         out << polar.cl1 << polar.cl2;
     }else{
@@ -63,8 +63,10 @@ QDataStream& operator<<(QDataStream& out, const Polar& polar){
 
 QDataStream& operator>>(QDataStream& in, Polar& polar){
 
+    int calcModeInt;
     if(polar.fileVersion == QString("0.6.0")){
-        in >> polar.calcMode;
+        in >> calcModeInt;
+        polar.calcMode = (Polar::calcTypes)calcModeInt;
         if (polar.calcMode == Analysis::clCalc){
             in >> polar.cl1 >> polar.cl2;
             polar.ui.radioButton_calcModeCl->click();
