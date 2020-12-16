@@ -1,0 +1,52 @@
+name: build
+
+on:
+  push:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  # This workflow contains a single job called "build"
+    
+  build_linux:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-16.04
+
+    steps:
+
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+
+    - name: Install LinuxDeployQt 
+      uses: wei/curl@v1
+      with:
+        args: -LJO https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
+
+    - name: make LinuxDeployQt executable
+      run: |
+        ls -l
+        sudo chmod a+x ./linuxdeployqt-continuous-x86_64.AppImage
+
+    - name: Install_OpenBlas
+      run: sudo apt-get install libopenblas-dev
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2.11.1
+      with:
+        version: '5.9.9'
+        # host: linux
+        # target: 'desktop'
+
+    # Runs a single command using the runners shell
+    - name: Build 
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+        make -j4
+
+        #- name: Build Deploy Package
+        #  run: |
+
