@@ -49,7 +49,8 @@ jobs:
         cd build
         cmake ..
         make -j4
-        export FOILBOXX_VERSION_TAG=`grep FOILBOXX_VERSION CMakeLists.txt | cut -d "\"" -f2`
+        export FOILBOXX_VERSION_TMP=`grep FOILBOXX_VERSION CMakeLists.txt | cut -d "\"" -f2`
+        echo "::set-env name=FOILBOXX_VERSION_TAG::$FOILBOXX_VERSION_TMP"
 
     - name: Build Deploy Package
       run: |
@@ -65,9 +66,9 @@ jobs:
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "v${{env.<FOILBOXX_VERSION_TAG>}}_beta"
+        automatic_release_tag: "v${{env.$FOILBOXX_VERSION_TAG}}_beta"
         prerelease: true
-        title: "v${{env.<FOILBOXX_VERSION_TAG>}}_beta"
+        title: "v${{env.FOILBOXX_VERSION_TAG}}_beta"
         files: |
           LICENSE.txt
           toDo.txt
