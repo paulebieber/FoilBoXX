@@ -49,8 +49,6 @@ jobs:
         cd build
         cmake ..
         make -j4
-        export FOILBOXX_VERSION_TMP=`grep FOILBOXX_VERSION CMakeLists.txt | cut -d "\"" -f2`
-        echo "::set-env name=FOILBOXX_VERSION_TAG::$FOILBOXX_VERSION_TMP"
 
     - name: Build Deploy Package
       run: |
@@ -58,17 +56,19 @@ jobs:
         cd deploy
         cp ../FoilBoXX .
         touch FoilBoXX.desktop
-        printf "[Desktop Entry]\nType=Application\nName=FoilBoXX\nComment=FoilBoXX\nTerminal=false\nCategories=Utility;Engineering;" >> FoilBoXX.desktop
         ../../linuxdeployqt-continuous-x86_64.AppImage ./FoilBoXX -always-overwrite -appimage -bundle-non-qt-libs -verbose=2
         mv *.AppImage FoilBoXX.AppImage
         cd ../..
+        export FOILBOXX_VERSION_TMP=`grep FOILBOXX_VERSION CMakeLists.txt | cut -d "\"" -f2`
+        echo "FOILBOXX_VERSION_TAG=$FOILBOXX_VERSION_TMP" >> $GITHUB_ENV
+        printf "[Desktop Entry]\nType=Application\nX-AppImage-Version=$FOILBOXX_VERSION_TAG\nName=FoilBoXX\nComment=FoilBoXX\nTerminal=false\nCategories=Utility;Engineering;" >> ./build/deploy/FoilBoXX.desktop
       
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "v${{env.FOILBOXX_VERSION_TAG}}_beta"
+        automatic_release_tag: "v${FOILBOXX_VERSION_TAG}_beta"
         prerelease: true
-        title: "v${{env.FOILBOXX_VERSION_TAG}}_beta"
+        title: "v${FOILBOXX_VERSION_TAG}_beta"
         files: |
           LICENSE.txt
           toDo.txt
