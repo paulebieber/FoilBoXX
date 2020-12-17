@@ -52,17 +52,14 @@ jobs:
 
     - name: Build Deploy Package
       run: |
-        cd build
-        mkdir deploy
-        cd deploy
-        cp ../FoilBoXX .
-        touch FoilBoXX.desktop
-        ../../linuxdeployqt-continuous-x86_64.AppImage ./FoilBoXX -always-overwrite -appimage -bundle-non-qt-libs -verbose=2
-        mv *.AppImage FoilBoXX.AppImage
-        cd ../..
         export FOILBOXX_VERSION_TMP=`grep FOILBOXX_VERSION CMakeLists.txt | cut -d "\"" -f2`
         echo "FOILBOXX_VERSION_TAG=$FOILBOXX_VERSION_TMP" >> $GITHUB_ENV
+        mkdir ./build/deploy
         printf "[Desktop Entry]\nType=Application\nX-AppImage-Version=$FOILBOXX_VERSION_TAG\nName=FoilBoXX\nComment=FoilBoXX\nTerminal=false\nCategories=Utility;Engineering;" >> ./build/deploy/FoilBoXX.desktop
+        cd build/deploy
+        cp ../FoilBoXX .
+        ../../linuxdeployqt-continuous-x86_64.AppImage ./FoilBoXX -always-overwrite -appimage -bundle-non-qt-libs -verbose=2
+        mv *.AppImage FoilBoXX.AppImage
       
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
