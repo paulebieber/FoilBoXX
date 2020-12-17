@@ -66,9 +66,9 @@ jobs:
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "v${{${FOILBOXX_VERSION_TAG}}}_beta"
+        automatic_release_tag: "v${{$FOILBOXX_VERSION_TAG}}_beta"
         prerelease: true
-        title: "v${{${FOILBOXX_VERSION_TAG}}}_beta"
+        title: "v${{$FOILBOXX_VERSION_TAG}}_beta"
         files: |
           LICENSE.txt
           toDo.txt
