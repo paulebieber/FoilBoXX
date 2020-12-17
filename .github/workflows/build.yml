@@ -50,6 +50,25 @@ jobs:
         cmake ..
         make -j4
 
-        #- name: Build Deploy Package
-        #  run: |
+    - name: Build Deploy Package
+      run: |
+        mkdir deploy
+        cd deploy
+        cp ../FoilBoXX .
+        touch FoilBoXX.desktop
+        printf "[Desktop Entry]\nType=Application\nName=FoilBoXX\nComment=FoilBoXX\nTerminal=false\nCategories=Utility;Engineering;" >> FoilBoXX.desktop
+        ../../linuxdeployqt-continuous-x86_64.AppImage ./FoilBoXX -always-overwrite -appimage -bundle-non-qt-libs -verbose=2
+        cd ../..
+      
+    - uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: true
+        title: "Development Build"
+        files: |
+          LICENSE.txt
+          toDo.txt
+          README.md
+          ./build/FoilBoXX.App
 
