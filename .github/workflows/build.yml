@@ -49,6 +49,7 @@ jobs:
         cd build
         cmake ..
         make -j4
+        export FOILBOXX_VERSION_TAG=`grep FOILBOXX_VERSION CMakeLists.txt | cut -d "\"" -f2`
 
     - name: Build Deploy Package
       run: |
