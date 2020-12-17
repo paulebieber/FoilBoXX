@@ -57,7 +57,7 @@ jobs:
         mkdir ./build/deploy
         touch build/deploy/FoilBoXX.desktop
         mv icon.png build/deploy
-        printf "[Desktop Entry]\nType=Application\nIcon=icon\nX-AppImage-Version=$FOILBOXX_VERSION_TAG\nIcon=icon\nName=FoilBoXX\nComment=FoilBoXX\nTerminal=false\nCategories=Utility;Engineering;" >> build/deploy/FoilBoXX.desktop
+        printf "[Desktop Entry]\nType=Application\nX-AppImage-Version=$FOILBOXX_VERSION_TAG\nIcon=icon\nName=FoilBoXX\nComment=FoilBoXX\nTerminal=false\nCategories=Utility;Engineering;" >> build/deploy/FoilBoXX.desktop
         cd build/deploy
         cp ../FoilBoXX .
         ../../linuxdeployqt-continuous-x86_64.AppImage ./FoilBoXX -always-overwrite -appimage -bundle-non-qt-libs -verbose=3
