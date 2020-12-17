@@ -52,6 +52,7 @@ jobs:
 
     - name: Build Deploy Package
       run: |
+        cd build
         mkdir deploy
         cd deploy
         cp ../FoilBoXX .
