@@ -64,12 +64,12 @@ jobs:
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "latest"
+        automatic_release_tag: env.<FOILBOXX_VERSION_TAG>
         prerelease: true
-        title: "Development Build"
+        title: env.<FOILBOXX_VERSION_TAG>
         files: |
           LICENSE.txt
           toDo.txt
           README.md
-          ./build/FoilBoXX.App
+          ./build/deploy/FoilBoXX.AppImage
 
