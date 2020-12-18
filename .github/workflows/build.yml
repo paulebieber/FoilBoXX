@@ -73,5 +73,5 @@ jobs:
           LICENSE.txt
           toDo.txt
           README.md
-          ./build/deploy/FoilBoXX.AppImage
+          ./build/deploy/*.AppImage
 
