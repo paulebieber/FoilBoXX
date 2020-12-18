@@ -61,7 +61,9 @@ jobs:
         cd build/deploy
         cp ../FoilBoXX .
         ../../linuxdeployqt-continuous-x86_64.AppImage ./FoilBoXX -always-overwrite -appimage -bundle-non-qt-libs -verbose=3
-        mv *.AppImage "FoilBoXX_${{env.FOILBOXX_VERSION_TAG}}.AppImage"
+
+    - name: renaming AppImage after Version
+      run: mv build/deploy/*.AppImage "build/deploy/FoilBoXX_v${{env.FOILBOXX_VERSION_TAG}}}_beta.AppImage"
       
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
