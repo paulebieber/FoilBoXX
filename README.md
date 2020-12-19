@@ -3,9 +3,9 @@ __A design tool for (wortman-)flapped airfoils with a fresh user-interface, uses
 
 __Download & Use (only Linux for now):__
 
-1) Go to releases, choose th latest one, open assets and download the AppImage
+1) Go to releases, choose th latest one, open assets and download the AppImage\
     -> https://github.com/paulebieber/FoilBoXX/releases
-2) Open a terminal, and run chmod +x on the AppImage to make it executable, then run it
+2) Open a terminal, and run chmod +x on the AppImage to make it executable, then run it\
     alternative: open Filebrowser, rightclick, under Properties/Accessablitiy activate run as executable
 0_beta
 __External Libraries:__
