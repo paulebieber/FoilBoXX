@@ -46,6 +46,10 @@ void BernsteinShape::setCoefficients(arma::vec& newCoefficients){
     calcShape();
 }
 
+arma::vec& BernsteinShape::getCoefficients(){
+   return coefficients;
+}
+
 void BernsteinShape::setSpacing(arma::vec spacing){
 
     this->spacing = spacing;

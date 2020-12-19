@@ -1,0 +1,79 @@
+name: build
+
+on:
+  push:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  # This workflow contains a single job called "build"
+    
+  build_linux:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-16.04
+
+    steps:
+
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+
+    - name: Recurse Submodules 
+      run: git submodule update --init
+
+    - name: Install LinuxDeployQt 
+      uses: wei/curl@v1
+      with:
+        args: -LJO https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
+
+    - name: make LinuxDeployQt executable
+      run: |
+        ls -l
+        sudo chmod a+x ./linuxdeployqt-continuous-x86_64.AppImage
+
+    - name: Install_OpenBlas
+      run: sudo apt-get install libopenblas-dev
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2.11.1
+      with:
+        version: '5.12.6'
+        # host: linux
+        # target: 'desktop'
+
+    # Runs a single command using the runners shell
+    - name: Build 
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+        make -j4
+
+    - name: Build Deploy Package
+      run: |
+        export FOILBOXX_VERSION_TMP=`grep FOILBOXX_VERSION CMakeLists.txt | cut -d "\"" -f2`
+        echo "FOILBOXX_VERSION_TAG=$FOILBOXX_VERSION_TMP" >> $GITHUB_ENV
+        mkdir ./build/deploy
+        touch build/deploy/FoilBoXX.desktop
+        mv icon.png build/deploy
+        printf "[Desktop Entry]\nType=Application\nX-AppImage-Version=$FOILBOXX_VERSION_TAG\nIcon=icon\nName=FoilBoXX\nComment=FoilBoXX\nTerminal=false\nCategories=Utility;Engineering;" >> build/deploy/FoilBoXX.desktop
+        cd build/deploy
+        cp ../FoilBoXX .
+        ../../linuxdeployqt-continuous-x86_64.AppImage ./FoilBoXX -always-overwrite -appimage -bundle-non-qt-libs -verbose=3
+
+    - name: renaming AppImage after Version
+      run: mv build/deploy/*.AppImage "build/deploy/FoilBoXX_v${{env.FOILBOXX_VERSION_TAG}}_beta.AppImage"
+      
+    - uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "v${{env.FOILBOXX_VERSION_TAG}}_beta"
+        prerelease: true
+        title: "v${{env.FOILBOXX_VERSION_TAG}}_beta"
+        files: |
+          LICENSE.txt
+          toDo.txt
+          README.md
+          ./build/deploy/*.AppImage
+

@@ -34,6 +34,9 @@ protected:
     arma::vec pressureVisc;
     arma::mat polar = arma::mat(0,6);
     arma::mat hFacTop,hFacBot;
+    double unitTurb = 1;
+
+    int n_errors;
 
     bool setAnalysis(double re, double nCrit, bool reCa1);
     void calcSingle(bool cl, double value, bool visc = false);
@@ -43,8 +46,10 @@ protected:
     double xfoilAlpha(){return foil->alpha() * 180/3.14159;}
     double xfoilCM(){return foil->cm;}
     double xfoilCA(){return foil->cl;}
-    double xfoilThickness(){return foil->thickb;}
 
 public:
+    double calcJustThickness();
     XfoilSession(arma::mat& coords, double& turbTop, double& turbBot);
+    XfoilSession(arma::mat& coords);
+    arma::mat& getPolar(){return polar;}
 };

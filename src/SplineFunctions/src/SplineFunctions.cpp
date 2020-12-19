@@ -273,11 +273,12 @@ double distanceBetweenPoints(const arma::vec& p1, const arma::vec& p2){
     return sqrt(pow(p1(0)-p2(0),2)+pow(p1(1)-p2(1),2));
 }
 
-arma::vec closestPointToPoint(const arma::mat& arrayCurve, const arma::vec& pt){
+arma::vec closestPointToPoint(const arma::mat& arrayCurve, const arma::vec& pt,
+        const double lowerBound, const double upperBound){
 
     dlib::matrix<double,0,1> start = {pt(0)};
-    dlib::matrix<double,0,1> lb = {pt(0)-0.4};
-    dlib::matrix<double,0,1> ub = {1.0};
+    dlib::matrix<double,0,1> lb = {lowerBound};
+    dlib::matrix<double,0,1> ub = {upperBound};
 
     optimizationData data(arrayCurve,pt,false);
     calcDistanceFromPointToSpline ptp(data);
@@ -327,3 +328,4 @@ double searchEtaDesign(const arma::mat& coordsToFit, const arma::vec& aim, const
 
     return start;
 }
+    

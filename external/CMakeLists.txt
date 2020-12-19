@@ -6,7 +6,7 @@ add_subdirectory(dlib)
 add_subdirectory(armadillo-code)
 
 #Add qwt (no CMakeLists.txt given)
-add_library(qwt SHARED)
+add_library(qwt STATIC)
 FILE(GLOB qwt_headers "qwt/src/*.h")
 FILE(GLOB qwt_src "qwt/src/*.cpp")
 target_sources(qwt PRIVATE ${qwt_src} ${qwt_headers})
@@ -14,6 +14,6 @@ target_link_libraries(qwt PUBLIC Qt5::Core Qt5::Widgets Qt5::Gui Qt5::PrintSuppo
 target_include_directories(qwt PUBLIC qwt/src)
 
 #Add xfoil-cpp (no CMakeLists.txt given)
-add_library(xfoil-cpp SHARED)
+add_library(xfoil-cpp STATIC)
 target_sources(xfoil-cpp PRIVATE "xfoil-cpp/XFoil.cpp")
 target_include_directories(xfoil-cpp PUBLIC "xfoil-cpp/")

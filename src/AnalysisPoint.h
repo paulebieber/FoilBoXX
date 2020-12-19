@@ -24,8 +24,7 @@ friend QDataStream& operator>>(QDataStream& in, AnalysisPoint& analysis); //For 
     void setItemText();
 
     //Plotting
-    QwtCustomPlot* pressurePlot;
-    QwtCustomPlot* foilPlot;
+    QwtCustomPlot* pressurePlot = NULL;
     QwtPlotCurve* curve = new QwtPlotCurve();
     QwtPlotCurve* viscCurve = new QwtPlotCurve();
     QPen bigPen;
@@ -40,7 +39,7 @@ friend QDataStream& operator>>(QDataStream& in, AnalysisPoint& analysis); //For 
     void onActivation(bool active, bool recursively = false); //Gets called if Hierarchyelement gets activated
 
 public:
-    AnalysisPoint(FoilMode* mode, QwtCustomPlot* pressurePlot);
+    AnalysisPoint(FoilMode* mode, QwtCustomPlot* pressurePlot = NULL);
     ~AnalysisPoint();
     void calc();
     void plot();
@@ -55,6 +54,6 @@ public:
 
 signals:
 
-    void thickness(double thickess);
+    void changed();
     void activated(bool recursively);
 };

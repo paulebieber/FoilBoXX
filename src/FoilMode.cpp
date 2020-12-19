@@ -1,6 +1,7 @@
 
 #include "FoilMode.h"
 #include "SplineFunctions.h"
+#include <qnamespace.h>
 
 FoilMode::FoilMode(AirfoilInterface* airfoil, ModePlot* modePlot):HierarchyElement(airfoil),airfoil(airfoil),modeType(full),modePlot(modePlot){
 
@@ -97,7 +98,6 @@ void FoilMode::calcCoords(){
         turbBot = std::get<2>(all);
 
         coordsAero = coords[0]; fkTop = coords[1], fkBot = coords[2], flapTop = coords[3], flapBot = coords[4];
-        flosse = airfoil->getFlosse();
 
     }else{
         //Calc Turbulator y
@@ -105,7 +105,6 @@ void FoilMode::calcCoords(){
         turbBot(1) = interpolate(lowerSide,turbBot(0));
     }
     
-    modePlot->plotCoords();
     emit changed();
 }
 
@@ -138,7 +137,7 @@ void FoilMode::connectToFoil(AirfoilInterface* foil){
 
     airfoil = foil; 
     disconnect(airfoilConnection);
-    airfoilConnection = connect(airfoil,&AirfoilInterface::changed,this,&FoilMode::calcCoords);
+    airfoilConnection = connect(airfoil,&AirfoilInterface::changed,this,&FoilMode::calcCoords,Qt::DirectConnection);
     color = *(foil->getColor());
     setBold(true);
     setColor(color);

@@ -13,18 +13,18 @@ class ModePlot: public QObject{
 
 Q_OBJECT
 
-    std::vector<QwtPlotCurve*> primaryCurves;
+    QMetaObject::Connection modeConnection;
+
     std::vector<QwtPlotCurve*> secondaryCurves;
     std::vector<QwtPlotCurve*> aeroCurves;
     QwtPlotCurve* turbTopCurve;
     QwtPlotCurve* turbBotCurve;
 
-    std::vector<arma::mat*> primary;
     std::vector<arma::mat*> aero;
     std::vector<arma::mat*> secondary;
 
     QwtCustomPlot* plot;
-    QPen primaryPen, secondaryPen, aeroPen;
+    QPen secondaryPen, aeroPen;
     QwtSymbol* aeroSymbol; 
     QwtSymbol* turbSymbol;
 

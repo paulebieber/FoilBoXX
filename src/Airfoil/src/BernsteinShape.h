@@ -28,7 +28,9 @@ public:
     virtual ~BernsteinShape(){};
 
     void setCoefficients(arma::vec& newCoefficients);
+    arma::vec& getCoefficients();
     void setSpacing(arma::vec spacing);
+    int getN(){return coefficients.n_rows;}
     int getSpacingLen(){return spacing.size();}
 
     arma::vec getInfluence(arma::vec& spacing, arma::vec& influenceCoefficients);

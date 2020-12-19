@@ -38,6 +38,8 @@ class Airfoil{
     void setBase();
     void changeShapeSpacings();
 
+    bool changedN;
+
 protected:
     std::vector<ShapeFunction*> shapes;
 
@@ -86,10 +88,10 @@ public:
     std::vector<double> getTurb() const {return std::vector<double>{turbTopPt(0),turbBotPt(0)};}
     double getFkChordfactor(){ return fkChordfactor;}
     double getFk(){return fk;}
-    arma::mat getFlosse(){return flosse;}
-    arma::mat* getUpperBaseCoords(){return &upperBaseCoords;}
-    arma::mat* getLowerBaseCoords(){return &lowerBaseCoords;}
+    arma::mat& getFlosse(){return flosse;}
+    arma::mat& getUpperBaseCoords(){return upperBaseCoords;}
+    arma::mat& getLowerBaseCoords(){return lowerBaseCoords;}
 
-    void virtual changedBaseCoords(){};
+    void virtual changedBaseCoords(bool nChanged){};
 };
 

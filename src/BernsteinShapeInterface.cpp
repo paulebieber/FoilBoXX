@@ -14,6 +14,9 @@ BernsteinShapeInterface::BernsteinShapeInterface(HierarchyElement* airfoil, QwtC
     shapeCurve->setYAxis(QwtPlot::yRight);
     pen.setStyle(Qt::DashDotLine);
 
+    connect(foilPlot,&QwtCustomPlot::dragged,this,[=](QPointF pt, QPointF delta){modify(pt,delta,false);},Qt::QueuedConnection);
+    connect(pressurePlot,&QwtCustomPlot::dragged,this,[=](QPointF pt, QPointF delta){modify(pt,delta,true);},Qt::QueuedConnection);
+
     setItemText();
     setBold(true);
     setupInterface();
@@ -154,6 +157,10 @@ void BernsteinShapeInterface::modify(QPointF pt, QPointF delta, bool negative){
     }
     addCoefs = coefficients + delta.y()*addCoefs*((negative | (!negative && side == top))?1:-1);
     setCoefficients(addCoefs);
+    update();
+}
+
+void BernsteinShapeInterface::update(){
     calcVisualizationShape();
     emit changed();
 }

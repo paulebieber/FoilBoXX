@@ -1,0 +1,5 @@
+/build
+/release
+/debug
+compile_commands.json
+/.clangd

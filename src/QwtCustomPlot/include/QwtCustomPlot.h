@@ -52,6 +52,8 @@ signals:
     void pressedUpDown(int sign);
     void dragged(QPointF pt, QPointF delta);
     void rangeChanged(int axisId, double min, double max);
+    void startDrag(QPointF start);
+    void dragFinished();
 protected:
     QwtPlotRescaler* rescaler;
     bool eventFilter(QObject* obj, QEvent* event);
