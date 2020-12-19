@@ -1,14 +1,21 @@
 
 #include "Optimization.h"
+#include "dlib/optimization/optimization.h"
+#include "dlib/optimization/optimization_bobyqa.h"
 #include <iostream>
 #include <qnamespace.h>
 
-OptimizationThread::OptimizationThread(){
+OptimizationThread::OptimizationThread():runOptimization(false){
 }
 
 const double OptimizationThread::fitness(const dlib::matrix<double>& coefs){
 
     double fitness = 0;
+
+    if(!runOptimization){
+        //terminate();
+        return 0;
+    }
 
     try{
         //std::cout << "I try using"<< coefs << std::endl;
@@ -34,6 +41,7 @@ const double OptimizationThread::fitness(const dlib::matrix<double>& coefs){
         for(Polar* polar: polars){
             threads.push_back(polar->calcOnDemand());
         }
+
         for(int i = 0; i< polars.size();i++){
             threads[i]->wait(20*1000);
             if(polars[i]->getSuccess() & polars[i]->getBorderTight()){
@@ -56,6 +64,8 @@ const double OptimizationThread::fitness(const dlib::matrix<double>& coefs){
 }
 
 void OptimizationThread::run(){
+
+    if(polarGoals.size() == 0){return;}
 
     dlib::matrix<double,0,1> start;
 

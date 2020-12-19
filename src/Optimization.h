@@ -8,6 +8,8 @@
 #include "Polar.h"
 #include "PolarGoal.h"
 #include "AirfoilInterface.h"
+#include "dlib/optimization/optimization.h"
+#include "dlib/optimization/optimization_bobyqa.h"
 
 class OptimizationThread: public QThread {
     Q_OBJECT
@@ -24,7 +26,10 @@ public:
         this->shapes = shapes;
         this->polarGoals = polarGoals;
         this->airfoil = airfoil;
+        //Enables stopping the Opt
+        runOptimization = true;
     }
+    bool runOptimization;
  
 public slots:
     void run() override;

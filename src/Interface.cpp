@@ -341,21 +341,25 @@ void Interface::newFoil(bool fromStart){
 
 void Interface::optimizePolars(AirfoilInterface* airfoil){
 
-    std::vector<BernsteinShapeInterface*> shapes;
-    std::vector<PolarGoal*> optimizationPolarGoals;
+    if(!optimizationThread.runOptimization){
+        std::vector<BernsteinShapeInterface*> shapes;
+        std::vector<PolarGoal*> optimizationPolarGoals;
 
-    for(BernsteinShapeInterface* shape : bernsteinShapes){
-        if(shape->getParent()==airfoil){
-            shapes.push_back(shape);
+        for(BernsteinShapeInterface* shape : bernsteinShapes){
+            if(shape->getParent()==airfoil){
+                shapes.push_back(shape);
+            }
         }
-    }
-    for(PolarGoal* polarGoal : polarGoals){
-        if(polarGoal->getPolar()->getMode()->getParent()==airfoil){
-            optimizationPolarGoals.push_back(polarGoal);
+        for(PolarGoal* polarGoal : polarGoals){
+            if(polarGoal->getPolar()->getMode()->getParent()==airfoil){
+                optimizationPolarGoals.push_back(polarGoal);
+            }
         }
+        optimizationThread.setUp(activeAirfoil,shapes,optimizationPolarGoals);
+        optimizationThread.start();
+    }else{
+        optimizationThread.runOptimization = false;
     }
-    optimizationThread.setUp(activeAirfoil,shapes,optimizationPolarGoals);
-    optimizationThread.start();
 }
 
 void Interface::newFoilMode(AirfoilInterface* airfoil, bool fromStart, QTextStream* in){

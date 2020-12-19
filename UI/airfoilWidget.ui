@@ -57,7 +57,7 @@
    <item row="5" column="1">
     <widget class="QPushButton" name="pushButton_optimizePolars">
      <property name="text">
-      <string>Optimize Polars</string>
+      <string>Start/Stop Polar Opt</string>
      </property>
     </widget>
    </item>
