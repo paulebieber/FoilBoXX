@@ -6,7 +6,7 @@ __Download & Use (only Linux for now):__
 1) Go to releases, choose th latest one, open assets and download the AppImage\
     -> https://github.com/paulebieber/FoilBoXX/releases
 2) Open a terminal, and run chmod +x on the AppImage to make it executable, then run it\
-    alternative: open Filebrowser, rightclick the AppImage, under Properties/Accessablitiy activate run as executable\
+    alternative: open Filebrowser, rightclick the AppImage, under Properties/Accessablitiy activate run as executable
     
 __External Libraries:__
 - xfoil-cpp-master (https://github.com/kamino410/xfoil-cpp), GPL-v3
