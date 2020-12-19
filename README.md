@@ -10,19 +10,18 @@ __External Libraries:__
 - openBlas (https://www.openblas.net/), BSD
 
 __For compiling from source:__
+- install Qt5.9.9 (best via https://www.qt.io/offline-installers)
+- install openBlas (on arch linux only https://aur.archlinux.org/packages/openblas-lapack worked for use with dlib)
+- install mesa-common-dev (packagename for apt)
+- after cloning do a git submodule update --init
 - For ubuntu use snap to get the latest cmake version
 - Check for right CMAKE_PREFIX_PATH for including the Qt cmake folder in the CMakeLists.txt
-- after cloning do a git submodule update --init
-- install mesa-common-dev (packagename for apt)
-- install openBlas (on arch linux only https://aur.archlinux.org/packages/openblas-lapack worked for use with dlib)
-- install Qt5.9.9 (best via https://www.qt.io/offline-installers)
 - Information: Temporary fix for xfoil-cpp ("Memset not declared"): Modified XFoil.h: added "#include \<cstring\>" to headers
 
 __Roadmap:__\
 In further Developement, the following functionality is planned:
 - draw Blueprints to the PressurePlot for every FoilMode, for reference
 - add geometric Optimization for minimization of gap between blueprint and pressure-Distribution
-- same on Polars
 - More refined analysis, like H parameter, delta*, theta and friction coefficient
 
 __Contributing to the source code:__\

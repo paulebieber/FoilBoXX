@@ -2,7 +2,7 @@ name: build
 
 on:
   push:
-    branches: [ testing_CI/CD ]
+    branches: [ master ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -63,7 +63,7 @@ jobs:
         ../../linuxdeployqt-continuous-x86_64.AppImage ./FoilBoXX -always-overwrite -appimage -bundle-non-qt-libs -verbose=3
 
     - name: renaming AppImage after Version
-      run: mv build/deploy/*.AppImage "build/deploy/FoilBoXX_v${{env.FOILBOXX_VERSION_TAG}}}_beta.AppImage"
+      run: mv build/deploy/*.AppImage "build/deploy/FoilBoXX_v${{env.FOILBOXX_VERSION_TAG}}_beta.AppImage"
       
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
