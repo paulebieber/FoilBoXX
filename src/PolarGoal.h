@@ -5,6 +5,7 @@
 #include "armadillo"
 #include "Polar.h"
 #include "DraggableCurve.h"
+#include "ui_polarGoalWidget.h"
 
 class PolarGoal: public HierarchyElement{
 
@@ -19,33 +20,42 @@ friend QDataStream& operator>>(QDataStream& in, PolarGoal& goal); //For Serriali
     bool dragging;
     bool normalDiff;
     double area;
+    double bias; //Reference on scale for Optimization;
+
+    public:enum Modes{cD,cLAlpha};
+    private:
+    Modes mode;
+    bool verticalDiff;
 
     //Plotting
     arma::mat areaCoords;
     arma::mat multipliedAreaCoords;
     QwtCustomPlot* plot;
+    QwtCustomPlot* plotCLAlpha;
     DraggableCurve* dragCurve;
+    QPen pen;
 
     QwtPlotCurve* curveArea = new QwtPlotCurve();
 
     Polar* polar;
 
-    QPen pen;
-
     //UI
+    Ui_polarGoalWidget ui;
     void setCurveColor(QColor color);
+    void setUpInterface();
 
     void onActivation(bool active, bool recursively = false); //Gets called if Hierarchyelement gets activated
     void onVisible(bool visible);
     void setItemText(QString text);
 
 public:
-    PolarGoal(QwtCustomPlot* plot, Polar* polar);
+    PolarGoal(QwtCustomPlot* plot,Modes mode, Polar* polar);
     ~PolarGoal();
     void calcDifferenceToPolar();
-    double getArea(){return area;};
+    double getArea(){return area;}
     Polar* getPolar(){return polar;}
     void plotDiff();
+    double getBias(){return bias;}
 
 signals:
     void activated(bool recursively);

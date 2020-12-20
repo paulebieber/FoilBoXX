@@ -1,10 +1,9 @@
 
 #include "PolarGoal.h"
-#include <qnamespace.h>
 #include <QDebug>
 
-PolarGoal::PolarGoal(QwtCustomPlot* plot, Polar* polar):HierarchyElement(polar),
-    plot(plot),polar(polar),normalDiff(false){
+PolarGoal::PolarGoal(QwtCustomPlot* plot, Modes mode, Polar* polar):HierarchyElement(polar),
+    plot(plot),polar(polar),mode(mode),verticalDiff(false),normalDiff(false){
 
     curveArea->attach(plot);
     curveArea->setYAxis(QwtPlot::yRight);
@@ -22,6 +21,7 @@ PolarGoal::PolarGoal(QwtCustomPlot* plot, Polar* polar):HierarchyElement(polar),
     curveArea->setPen(pen);
     setItemText("Goal");
 
+    setUpInterface();
     calcDifferenceToPolar();
 }
 
@@ -51,13 +51,19 @@ void PolarGoal::calcDifferenceToPolar(){
     int n_disc = 100;
     int count = 0;
 
+    bias = plot->axisScaleDiv(QwtPlot::yRight).range() * plot->axisScaleDiv(QwtPlot::xBottom).range();
+
     if(!polar->getSuccess()){return;}
     arma::mat& polarPts = polar->getPolar();
     arma::mat& goalPts = dragCurve->getPts();
 
     arma::mat cLCD(polarPts.n_rows,2);
+    if(mode == cD){
+        cLCD.col(1) = polarPts.col(1);
+    }else{
+        cLCD.col(1) = polarPts.col(2);
+    }
     cLCD.col(0) = polarPts.col(0);
-    cLCD.col(1) = polarPts.col(1);
 
     //Coordinates for visualizing area
     if (cLCD.n_rows > 0){
@@ -111,6 +117,12 @@ void PolarGoal::plotDiff(){
             areaCoords.n_rows);
     
     plot->replot();
+}
+
+void PolarGoal::setUpInterface(){
+    ui.setupUi(&widget);
+    widget.show();
+    connect(ui.checkBox_verticalDiff,&QCheckBox::stateChanged,[this](bool state){verticalDiff = state;calcDifferenceToPolar();});
 }
 
 void PolarGoal::setItemText(QString string){

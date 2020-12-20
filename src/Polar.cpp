@@ -64,7 +64,7 @@ QDataStream& operator<<(QDataStream& out, const Polar& polar){
 QDataStream& operator>>(QDataStream& in, Polar& polar){
 
     int calcModeInt;
-    if(polar.fileVersion == QString("0.6.0")){
+    if(polar.fileVersion == QString("0.6.0") || polar.fileVersion == QString("0.6.1")){
         in >> calcModeInt;
         polar.calcMode = (Polar::calcTypes)calcModeInt;
         if (polar.calcMode == Analysis::clCalc){
@@ -122,16 +122,16 @@ void Polar::calcPolarParallel(){
     //std::cout << "got: " << polar << std::endl;
 }
 
-QThread* Polar::calcOnDemand(){
+void Polar::calcOnDemand(){
     //ui.pushButton_calcPolar->setEnabled(false);
+    //if(thread->isRunning()){return;};
     thread->start();
     needsUpdate(false);
-    return thread;
 }
 
 //comes from Base Analysis and fires on Foilmode change
 void Polar::calc(){
-    //calcOnDemand();
+    calcOnDemand();
 }
 
 void Polar::plot(){

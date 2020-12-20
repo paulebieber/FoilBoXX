@@ -65,7 +65,7 @@ signals:
     void changed();
 
 public slots:
-    QThread* calcOnDemand();
+    void calcOnDemand();
 };
 
 class WorkerThread: public QThread {

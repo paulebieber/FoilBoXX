@@ -161,6 +161,7 @@ void Interface::loadAirfoil(){
 
             if(string == QString("FoilMode")){
                 newFoilMode(airfoils.back(),true);
+                modes.back()->blockSignals(true);
                 in >> *modes.back();
             }
             //For Analysispts
@@ -186,6 +187,9 @@ void Interface::loadAirfoil(){
             else{break;}
         }
 
+        //Blocking, so that polars dont get calced with wrong coordinates while setting up,
+        //and iterate long (missing Camber for high cl)
+        for(FoilMode* mode: modes){mode->blockSignals(false);}
         airfoils.back()->baseCoords();
         file.close();
     }
@@ -406,20 +410,17 @@ void Interface::newPolar(FoilMode* mode){
     connect(polar,&Polar::activated,[this,polar](bool recursively){activePolar = polar;stackedWidget_2->setCurrentWidget(polarPlotWidget);
             if(!recursively){QTimer::singleShot(0,[this,polar](){scrollArea->ensureWidgetVisible(polar->getWidget());});}});
 
-    //QObject::connect(polar->thread,&WorkerThread::resultReady,this,[=](){
-    //        for(PolarGoal* polarGoal : polarGoals){
-    //            if(polarGoal->getPolar() == polar){polarGoal->calcDifferenceToPolar();}
-    //        }
-    //    },Qt::DirectConnection);
-
-    //newPolarGoal(polar);
     polar->simulateClicked();
-    //polar->calcOnDemand();
 }
 
-void Interface::newPolarGoal(Polar* polar){
+void Interface::newPolarGoal(Polar* polar, bool cLAlpha){
 
-    PolarGoal* polarGoal = new PolarGoal(polarPlotWidget->getPlots()[0],polar);
+    PolarGoal* polarGoal;
+    if(cLAlpha){
+        polarGoal = new PolarGoal(polarPlotWidget->getPlots()[1],PolarGoal::cLAlpha,polar);
+    }else{
+        polarGoal = new PolarGoal(polarPlotWidget->getPlots()[0],PolarGoal::cD,polar);
+    }
     polarGoals.push_back(polarGoal);
 
     layout_analysis->addWidget(polarGoal->getWidget());
@@ -442,7 +443,7 @@ void Interface::deletePolarGoal(PolarGoal* polarGoal){
 
 BernsteinShapeInterface* Interface::newBernsteinShape(AirfoilInterface* airfoil){
 
-    BernsteinShapeInterface* shape = new BernsteinShapeInterface(airfoil, foilPlotWidget,pressurePlotWidget);
+    BernsteinShapeInterface* shape = new BernsteinShapeInterface(airfoil, foilPlotWidget,pressurePlotWidget,fileVersion);
     bernsteinShapes.push_back(shape);
     airfoil->addShapeFunction(shape);
     //shape->onActivation(false,false);
@@ -475,6 +476,7 @@ void Interface::connectBarGeneral(){
     connect(actionadd_AnalysisPoint,&QAction::triggered,[this](){newAnalysisPoint(activeMode);});
     connect(actionadd_Polar,&QAction::triggered,[this](){newPolar(activeMode);});
     connect(actionadd_PolarGoal,&QAction::triggered,[this](){newPolarGoal(activePolar);});
+    connect(actionadd_PolarGoalForCLAlpha,&QAction::triggered,[this](){newPolarGoal(activePolar,true);});
     connect(actionadd_FoilMode,&QAction::triggered,[this](){newFoilMode(activeAirfoil);});
     connect(actionadd_ShapeFunction,&QAction::triggered,[this](){newBernsteinShape(activeAirfoil);});
     connect(actionset_Name,&QAction::triggered,this,&Interface::setAirfoilName);

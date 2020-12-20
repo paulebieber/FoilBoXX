@@ -14,6 +14,6 @@ Analysis::~Analysis(){
 void Analysis::connectToMode(FoilMode* mode){
 
     this->mode = mode;
-    modeConnection = connect(mode,&FoilMode::changed,this,&Analysis::calc);
-    //modeConnection = connect(mode,&FoilMode::changed,this,&Analysis::calc,Qt::DirectConnection);
+    //modeConnection = connect(mode,&FoilMode::changed,this,&Analysis::calc);
+    modeConnection = connect(mode,&FoilMode::changed,this,&Analysis::calc,Qt::DirectConnection);
 }

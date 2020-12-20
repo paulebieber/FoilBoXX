@@ -32,21 +32,21 @@ const double OptimizationThread::fitness(const dlib::matrix<double>& coefs){
             //std::cout << shapeCoefs << std::endl;
         }
 
-        std::vector<QThread*> threads;
+        //std::vector<QThread*> threads;
         std::vector<Polar*> polars;
         for(PolarGoal* polarGoal : polarGoals){
             polars.push_back(polarGoal->getPolar());
         }
 
-        for(Polar* polar: polars){
-            threads.push_back(polar->calcOnDemand());
-        }
+        //for(Polar* polar: polars){
+        //    threads.push_back(polar->calcOnDemand());
+        //}
 
         for(int i = 0; i< polars.size();i++){
-            threads[i]->wait(20*1000);
-            //polars[i]->thread->wait(20*1000);
+            //threads[i]->wait(20*1000);
+            polars[i]->thread->wait(20*1000);
             if(polars[i]->getSuccess() & polars[i]->getBorderTight()){
-                fitness += polarGoals[i]->getArea();
+                fitness += 1000*polarGoals[i]->getArea();
             }else{
                 std::cout << "fitness += 1" << std::endl;
                 fitness += 1.0;
@@ -55,7 +55,7 @@ const double OptimizationThread::fitness(const dlib::matrix<double>& coefs){
         std::cout << fitness << std::endl;
 
         //Add Thickness panelty
-        fitness += (airfoil->getThickness()-0.1375) * 10;
+        //fitness += (airfoil->getThickness()-0.1375) * 10;
   }
   catch (exception& e){
     cout << e.what() << '\n';
@@ -96,7 +96,7 @@ void OptimizationThread::run(){
     ub+=max(bounds);
 
     dlib::find_min_bobyqa([this](const dlib::matrix<double>& coefs) {return this->fitness(coefs);},
-           start,n_coefs*2,lb,ub,0.1,1e-4,1000);
+           start,n_coefs*2,lb,ub,0.2,1e-4,1000);
 
     //dlib::find_min_using_approximate_derivatives(dlib::bfgs_search_strategy(),
     //                                       dlib::objective_delta_stop_strategy(1e-10),

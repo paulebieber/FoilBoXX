@@ -6,8 +6,8 @@
 #include <vector>
 #include <QVector>
 
-BernsteinShapeInterface::BernsteinShapeInterface(HierarchyElement* airfoil, QwtCustomPlot* foilPlot, QwtCustomPlot* pressurePlot):
-                                foilPlot(foilPlot),pressurePlot(pressurePlot), HierarchyElement(airfoil, true), width(0.2){
+BernsteinShapeInterface::BernsteinShapeInterface(HierarchyElement* airfoil, QwtCustomPlot* foilPlot, QwtCustomPlot* pressurePlot, QString fileVersion):
+                                foilPlot(foilPlot),pressurePlot(pressurePlot), HierarchyElement(airfoil, true), width(0.2), fileVersion(fileVersion){
 
     shapeCurve = new QwtPlotCurve();
     shapeCurve->attach(foilPlot);
@@ -35,6 +35,7 @@ QDataStream& operator<<(QDataStream& out, const BernsteinShapeInterface& shape){
 
     out << QString("BernsteinShape");
     out << (int)shape.side;
+    out << shape.modifying;
     out << QVector<double>::fromStdVector(arma::conv_to<std::vector<double>>::from(shape.coefficients));
     return out;
 
@@ -45,6 +46,9 @@ QDataStream& operator>>(QDataStream& in, BernsteinShapeInterface& shape){
     int sideInt;
     in >> sideInt;
     shape.side = (BernsteinShapeInterface::sideType)sideInt;
+    if(shape.fileVersion == QString("0.6.1")){
+        bool modi; in >> modi; shape.setModifying(modi,true);
+    }
     QVector<double> vec;
     in >> vec;
     std::vector<double> vec2(vec.begin(),vec.end());
@@ -146,7 +150,7 @@ void BernsteinShapeInterface::onVisible(bool visible){
 
 void BernsteinShapeInterface::modify(QPointF pt, QPointF delta, bool negative){
 
-    if(!modifying){return;}
+    if(!modifying || !getParent()->active){return;}
 
     double weight = 0.2;
     arma::vec addCoefs = xs;

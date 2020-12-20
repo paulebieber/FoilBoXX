@@ -365,6 +365,7 @@ background-color: rgb(255, 255, 255);</string>
     </property>
     <addaction name="actionadd_PolarGoal"/>
     <addaction name="actiondelete_PolarGoal"/>
+    <addaction name="actionadd_PolarGoalForCLAlpha"/>
    </widget>
    <addaction name="menuFoilBoXX"/>
    <addaction name="menuAirfoil"/>
@@ -580,6 +581,11 @@ background-color: rgb(255, 255, 255);</string>
   <action name="actiondelete_PolarGoal">
    <property name="text">
     <string>delete PolarGoal</string>
+   </property>
+  </action>
+  <action name="actionadd_PolarGoalForCLAlpha">
+   <property name="text">
+    <string>add PolarGoal for cLAlpha</string>
    </property>
   </action>
  </widget>
