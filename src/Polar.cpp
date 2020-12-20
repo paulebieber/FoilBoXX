@@ -129,10 +129,14 @@ QThread* Polar::calcOnDemand(){
     return thread;
 }
 
+//comes from Base Analysis and fires on Foilmode change
+void Polar::calc(){
+    //calcOnDemand();
+}
+
 void Polar::plot(){
 
-    multipliedCd = arma::vec(polar.col(1)*1000);
-    curveCLCD->setSamples(multipliedCd.memptr(),polar.colptr(0),polar.n_rows);
+    curveCLCD->setSamples(polar.colptr(1),polar.colptr(0),polar.n_rows);
     curveCLAlpha->setSamples(polar.colptr(2),polar.colptr(0),polar.n_rows);
     curveCLXTrTop->setSamples(polar.colptr(3),polar.colptr(0),polar.n_rows);
     curveCLXTrBot->setSamples(polar.colptr(4),polar.colptr(0),polar.n_rows);
@@ -183,13 +187,13 @@ void Polar::setCurveColor(QColor color){
 }
 
 void Polar::needsUpdate(bool need) {
-    if(need){
-        treeItem->setForeground(0,Qt::red);
-        ui.groupBox->setStyleSheet("QGroupBox:title {color: rgb(200, 10, 10);}");
-    }else{
-        treeItem->setForeground(0,Qt::black);
-        ui.groupBox->setStyleSheet("QGroupBox:title {color: rgb(0, 0, 0);}");
-    }
+    //if(need){
+    //    treeItem->setForeground(0,Qt::red);
+    //    ui.groupBox->setStyleSheet("QGroupBox:title {color: rgb(200, 10, 10);}");
+    //}else{
+    //    treeItem->setForeground(0,Qt::black);
+    //    ui.groupBox->setStyleSheet("QGroupBox:title {color: rgb(0, 0, 0);}");
+    //}
 }
 
 void Polar::setupInterface(){

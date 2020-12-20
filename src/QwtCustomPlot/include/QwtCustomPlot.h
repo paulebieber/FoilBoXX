@@ -35,6 +35,7 @@ Q_OBJECT
     QwtSplineCurveFitter fitter;
 
     double zoomStep;
+    double xFac;
 
     QwtScaleMap scaleMapX;
     QwtScaleMap scaleMapY;

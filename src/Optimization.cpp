@@ -44,6 +44,7 @@ const double OptimizationThread::fitness(const dlib::matrix<double>& coefs){
 
         for(int i = 0; i< polars.size();i++){
             threads[i]->wait(20*1000);
+            //polars[i]->thread->wait(20*1000);
             if(polars[i]->getSuccess() & polars[i]->getBorderTight()){
                 fitness += polarGoals[i]->getArea();
             }else{

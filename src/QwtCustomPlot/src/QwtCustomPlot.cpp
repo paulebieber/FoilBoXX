@@ -66,6 +66,10 @@ QwtCustomPlot::QwtCustomPlot(QWidget* widget, QString xString, QString yString, 
 
     //canvas()->setFocusPolicy(Qt::StrongFocus);
     //canvas()->setMouseTracking(true);
+    
+    //Gives place for longer axis lables and prevents pincing of coordinate space
+    axisWidget(QwtPlot::xBottom)->setMinBorderDist(20,20);
+    axisWidget(QwtPlot::yRight)->setMinBorderDist(20,20);
 }
 
 void QwtCustomPlot::fitCurve(QwtPlotCurve* curve){
