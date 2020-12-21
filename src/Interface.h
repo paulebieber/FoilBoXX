@@ -46,7 +46,7 @@ Q_OBJECT
     void newFoil(bool fromStart = false);
     void deleteAirfoil(AirfoilInterface* airfoil);
     void newPolar(FoilMode* mode);
-    void newPolarGoal(Polar* polar, bool cLAlpha = false);
+    void newPolarGoal(Polar* polar, PolarGoal::Modes mode = PolarGoal::cD);
     void newFoilMode(AirfoilInterface* airfoil, bool fromStart = false, QTextStream* in = nullptr);
     void deleteMode(FoilMode* mode);
     void deleteBernsteinShape(BernsteinShapeInterface* shape);

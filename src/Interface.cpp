@@ -175,8 +175,16 @@ void Interface::loadAirfoil(){
                 in >> *polars.back();
             }
             //and Goals
-            else if(string == QString("PolarGoal")){
-                newPolarGoal(polars.back());
+            else if(string == QString("PolarGoal")){ //version 0.6.0
+                newPolarGoal(polars.back(),PolarGoal::cD);
+                in >> *polarGoals.back();
+            }
+            else if(string == QString("PolarGoalCLAlpha")){
+                newPolarGoal(polars.back(),PolarGoal::cLAlpha);
+                in >> *polarGoals.back();
+            }
+            else if(string == QString("PolarGoalCD")){
+                newPolarGoal(polars.back(),PolarGoal::cD);
                 in >> *polarGoals.back();
             }
             //and Bernsteins 
@@ -413,14 +421,9 @@ void Interface::newPolar(FoilMode* mode){
     polar->simulateClicked();
 }
 
-void Interface::newPolarGoal(Polar* polar, bool cLAlpha){
+void Interface::newPolarGoal(Polar* polar, PolarGoal::Modes mode){
 
-    PolarGoal* polarGoal;
-    if(cLAlpha){
-        polarGoal = new PolarGoal(polarPlotWidget->getPlots()[1],PolarGoal::cLAlpha,polar);
-    }else{
-        polarGoal = new PolarGoal(polarPlotWidget->getPlots()[0],PolarGoal::cD,polar);
-    }
+    PolarGoal* polarGoal = new PolarGoal(polarPlotWidget->getPlots()[(mode == PolarGoal::cD ? 0:1)],mode,polar);
     polarGoals.push_back(polarGoal);
 
     layout_analysis->addWidget(polarGoal->getWidget());
@@ -476,7 +479,7 @@ void Interface::connectBarGeneral(){
     connect(actionadd_AnalysisPoint,&QAction::triggered,[this](){newAnalysisPoint(activeMode);});
     connect(actionadd_Polar,&QAction::triggered,[this](){newPolar(activeMode);});
     connect(actionadd_PolarGoal,&QAction::triggered,[this](){newPolarGoal(activePolar);});
-    connect(actionadd_PolarGoalForCLAlpha,&QAction::triggered,[this](){newPolarGoal(activePolar,true);});
+    connect(actionadd_PolarGoalForCLAlpha,&QAction::triggered,[this](){newPolarGoal(activePolar,PolarGoal::cLAlpha);});
     connect(actionadd_FoilMode,&QAction::triggered,[this](){newFoilMode(activeAirfoil);});
     connect(actionadd_ShapeFunction,&QAction::triggered,[this](){newBernsteinShape(activeAirfoil);});
     connect(actionset_Name,&QAction::triggered,this,&Interface::setAirfoilName);

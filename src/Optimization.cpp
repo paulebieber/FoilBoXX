@@ -46,16 +46,21 @@ const double OptimizationThread::fitness(const dlib::matrix<double>& coefs){
             //threads[i]->wait(20*1000);
             polars[i]->thread->wait(20*1000);
             if(polars[i]->getSuccess() & polars[i]->getBorderTight()){
-                fitness += 1000*polarGoals[i]->getArea();
+                double add = polarGoals[i]->getArea();
+                if(polarGoals[i]->getMode() == PolarGoal::cD){add*=200;} //Cd very small
+                fitness += add;
+                std::cout << "mode: " << polarGoals[i]->getMode() << std::endl;
+                std::cout << "adding: " << add << std::endl;
             }else{
                 std::cout << "fitness += 1" << std::endl;
                 fitness += 1.0;
             }
         }
-        std::cout << fitness << std::endl;
 
         //Add Thickness panelty
         //fitness += (airfoil->getThickness()-0.1375) * 10;
+        
+        std::cout << "overall: " << fitness << std::endl;
   }
   catch (exception& e){
     cout << e.what() << '\n';

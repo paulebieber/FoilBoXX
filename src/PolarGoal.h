@@ -55,7 +55,7 @@ public:
     double getArea(){return area;}
     Polar* getPolar(){return polar;}
     void plotDiff();
-    double getBias(){return bias;}
+    Modes getMode(){return mode;}
 
 signals:
     void activated(bool recursively);
