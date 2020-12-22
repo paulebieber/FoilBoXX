@@ -1,5 +1,6 @@
 
 #include "FoilPlot.h"
+#include <qnamespace.h>
 
 FoilPlot::FoilPlot(QwtCustomPlot* plot, AirfoilInterface* airfoil):plot(plot),permanentInvisible(false),airfoil(airfoil),
     upperBaseCoords(airfoil->getUpperBaseCoords()),lowerBaseCoords(airfoil->getLowerBaseCoords()){
@@ -14,9 +15,9 @@ FoilPlot::FoilPlot(QwtCustomPlot* plot, AirfoilInterface* airfoil):plot(plot),pe
         baseCurves[i]->setRenderHint(QwtPlotCurve::RenderAntialiased,true);
     }
 
-    connect(airfoil,&AirfoilInterface::visibleChanged,this,&FoilPlot::setVisible);
-    connect(airfoil,&AirfoilInterface::activeChanged,this,&FoilPlot::setActive);
-    connect(airfoil,&AirfoilInterface::replot,this,&FoilPlot::plotCoords);
+    connect(airfoil,&AirfoilInterface::visibleChanged,this,&FoilPlot::setVisible,Qt::QueuedConnection);
+    connect(airfoil,&AirfoilInterface::activeChanged,this,&FoilPlot::setActive,Qt::QueuedConnection);
+    connect(airfoil,&AirfoilInterface::replot,this,&FoilPlot::plotCoords,Qt::QueuedConnection);
 }
 
 FoilPlot::~FoilPlot(){

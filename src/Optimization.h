@@ -36,5 +36,5 @@ public slots:
  
 signals:
     //void readyForShapePlot(BernsteinShape* shape);
-    //void readyForPolarPlot(Polar*);
+    void finished();
 };

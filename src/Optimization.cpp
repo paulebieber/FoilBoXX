@@ -32,6 +32,15 @@ const double OptimizationThread::fitness(const dlib::matrix<double>& coefs){
             //std::cout << shapeCoefs << std::endl;
         }
 
+        //YPlus
+        airfoil->setAttribute(Airfoil::setYPlus,coefs(coefs.nr()-1)/10,false);
+
+        //YMinus
+        airfoil->setAttribute(Airfoil::setYMinus,coefs(coefs.nr()-2)/10,false);
+
+        //TurbBot
+        airfoil->setAttribute(Airfoil::setTurbBot,coefs(coefs.nr()-3)/10,false);
+
         //std::vector<QThread*> threads;
         std::vector<Polar*> polars;
         for(PolarGoal* polarGoal : polarGoals){
@@ -63,7 +72,7 @@ const double OptimizationThread::fitness(const dlib::matrix<double>& coefs){
         std::cout << "overall: " << fitness << std::endl;
   }
   catch (exception& e){
-    cout << e.what() << '\n';
+      std::cout << e.what() << std::endl;
     fitness += 1;
   }
     return fitness;
@@ -82,7 +91,7 @@ void OptimizationThread::run(){
     }
 
     //resize start
-    start.set_size(n_coefs);
+    start.set_size(n_coefs+3);
 
     int n = 0;
     for(BernsteinShape* shape : shapes){
@@ -100,8 +109,28 @@ void OptimizationThread::run(){
     lb+=min(bounds);
     ub+=max(bounds);
 
+    //YPlus
+    start(start.nr()-1) = airfoil->getYPlus()*10;
+    lb(lb.nr()-1) = 0.0;
+    ub(ub.nr()-1) = 0.45*10;
+
+    //YMinus
+    start(start.nr()-2) = airfoil->getYMinus()*10;
+    lb(lb.nr()-2) = 0.0;
+    ub(ub.nr()-2) = 0.3*10;
+
+    //TurbBot
+    start(start.nr()-3) = airfoil->getTurb()[1]*10;
+    lb(lb.nr()-3) = 0.5*10;
+    ub(ub.nr()-3) = 1.0*10;
+
+    std::cout << lb << ub << std::endl;
+
     dlib::find_min_bobyqa([this](const dlib::matrix<double>& coefs) {return this->fitness(coefs);},
            start,n_coefs*2,lb,ub,0.2,1e-4,1000);
+
+    std::cout << "ended" << std::endl;
+    emit finished();
 
     //dlib::find_min_using_approximate_derivatives(dlib::bfgs_search_strategy(),
     //                                       dlib::objective_delta_stop_strategy(1e-10),

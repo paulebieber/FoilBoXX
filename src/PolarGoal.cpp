@@ -104,7 +104,7 @@ void PolarGoal::calcDifferenceToPolar(){
                 count+=2;
             }
         }
-        std::cout << "area" << area << std::endl;
+        //std::cout << "area" << area << std::endl;
     }else{
         areaCoords = arma::mat(0,2);
     }
