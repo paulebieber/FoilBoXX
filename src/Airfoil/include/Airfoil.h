@@ -45,6 +45,7 @@ protected:
 
     arma::vec flapPivot;
     double fkChordfactor;
+    double fkThickness;
     double flapRelY;
     double etaDesignUpper;
     double etaDesignLower;
@@ -87,6 +88,7 @@ public:
     std::tuple<std::vector<arma::mat>,arma::vec,arma::vec> getModeCoords(bool fkExtracted, double eta);
     std::vector<double> getTurb() const {return std::vector<double>{turbTopPt(0),turbBotPt(0)};}
     double getFkChordfactor(){ return fkChordfactor;}
+    double getFkThickness(){ return fkThickness;}
     double getFk(){return fk;}
     arma::mat& getFlosse(){return flosse;}
     arma::mat& getUpperBaseCoords(){return upperBaseCoords;}

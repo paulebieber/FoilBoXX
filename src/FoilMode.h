@@ -49,7 +49,6 @@ friend QDataStream& operator>>(QDataStream& in, FoilMode& mode); //For Serrializ
     void onActivation(bool active, bool recursively=false);
     void onVisible(bool visible);
 
-    void setEta(double eta, bool recalc = true);
     void setFK(bool on, bool recalc = true);
 
 public:
@@ -64,8 +63,8 @@ public:
     QString getCoordsName();
     void connectToFoil(AirfoilInterface* foil);
     void plotCoords();
-    void setItemText();
     void setItemText(QString string);
+    void setEta(double eta, bool recalc = true);
 
     //Getters
     AirfoilInterface* getAirfoil(){return airfoil;};
@@ -77,6 +76,9 @@ public:
     modeTypes getModeType(){return modeType;}
     arma::mat* getAero(){return &coordsAero;}
     QColor& getColor(){return color;}
+
+public slots:
+    void setItemText();
 
 signals:
     void activated(bool recursively);

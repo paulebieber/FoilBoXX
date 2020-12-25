@@ -48,6 +48,7 @@ public:
     BernsteinShapeInterface(HierarchyElement* airfoil, QwtCustomPlot* foilPlot, QwtCustomPlot* pressurePlot, QString fileVersion = QString(""));
     ~BernsteinShapeInterface();
     void modify(QPointF pt, QPointF delta, bool negative);
+    void setCoefficients(arma::vec& newCoefficients, bool calcFoil = true);
     void setSide(BernsteinShape::sideType side);
     void update();
 

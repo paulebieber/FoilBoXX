@@ -87,13 +87,7 @@ Q_OBJECT
     QString styleInactive = QString("background-color: rgb(238,238,236);\ncolor: rgb(150,150,150);");
     void changeColor();
 
-    // For Plotting while opt
-    void plotShapes(BernsteinShape* shape);
-    void plotPolar(Polar* polar);
-
-
 public:
     Interface(QApplication& app, QString version);
-
 };
 

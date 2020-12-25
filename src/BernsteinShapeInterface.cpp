@@ -55,9 +55,9 @@ QDataStream& operator>>(QDataStream& in, BernsteinShapeInterface& shape){
     arma::vec coefs(arma::conv_to<arma::vec>::from(vec2));
 
     shape.changed(true);
-    shape.setCoefficients(coefs);
     shape.setPlot();
     shape.setItemText();
+    shape.setCoefficients(coefs,true);
     
     return in;
 }
@@ -148,6 +148,13 @@ void BernsteinShapeInterface::onVisible(bool visible){
     foilPlot->replot();
 }
 
+void BernsteinShapeInterface::setCoefficients(arma::vec& newCoefficients, bool calcFoil){
+
+    BernsteinShape::setCoefficients(newCoefficients);
+    calcVisualizationShape();
+    if(calcFoil){emit changed();}
+}
+
 void BernsteinShapeInterface::modify(QPointF pt, QPointF delta, bool negative){
 
     if(!modifying || !getParent()->active){return;}
@@ -160,13 +167,7 @@ void BernsteinShapeInterface::modify(QPointF pt, QPointF delta, bool negative){
         }else{addCoefs[i] = 0.0;}
     }
     addCoefs = coefficients + delta.y()*addCoefs*((negative | (!negative && side == top))?1:-1);
-    setCoefficients(addCoefs);
-    update();
-}
-
-void BernsteinShapeInterface::update(){
-    calcVisualizationShape();
-    emit changed();
+    setCoefficients(addCoefs,true);
 }
 
 void BernsteinShapeInterface::calcVisualizationShape(){

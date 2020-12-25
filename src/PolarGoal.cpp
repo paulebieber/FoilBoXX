@@ -1,9 +1,11 @@
 
 #include "PolarGoal.h"
 #include <QDebug>
+#include <iostream>
+#include <iterator>
 
 PolarGoal::PolarGoal(QwtCustomPlot* plot, Modes mode, Polar* polar):HierarchyElement(polar),
-    plot(plot),polar(polar),mode(mode),verticalDiff(mode == cLAlpha),normalDiff(false){
+    plot(plot),polar(polar),mode(mode),verticalDiff(mode != cD),normalDiff(false){
 
     curveArea->attach(plot);
     curveArea->setYAxis(QwtPlot::yRight);
@@ -12,8 +14,10 @@ PolarGoal::PolarGoal(QwtCustomPlot* plot, Modes mode, Polar* polar):HierarchyEle
     arma::mat dragInit;
     if(mode==cLAlpha){
         dragInit = arma::mat{{6,1.0},{7,1.1},{10,1.2}};
-    }else{
+    }else if(mode == cD){
         dragInit = arma::mat{{0.006,0.2},{0.007,0.4},{0.008,0.5}};
+    }else{
+        dragInit = arma::mat{{0.4,1.35},{0.45,1.325},{0.5,1.3}};
     }
     dragCurve = new DraggableCurve(plot,dragInit);
 
@@ -40,8 +44,10 @@ QDataStream& operator<<(QDataStream& out, const PolarGoal& goal){
 
     if(goal.mode == PolarGoal::cLAlpha){
         out << QString("PolarGoalCLAlpha");
-    }else{
+    }else if(goal.mode == PolarGoal::cD){
         out << QString("PolarGoalCD");
+    }else{
+        out << QString("PolarGoalXTrTop");
     }
     out << *goal.dragCurve;
     return out;
@@ -62,7 +68,7 @@ void PolarGoal::calcDifferenceToPolar(){
     int n_disc = 100;
     int count = 0;
 
-    bias = plot->axisScaleDiv(QwtPlot::yRight).range() * plot->axisScaleDiv(QwtPlot::xBottom).range();
+    //bias = plot->axisScaleDiv(QwtPlot::yRight).range() * plot->axisScaleDiv(QwtPlot::xBottom).range();
 
     if(!polar->getSuccess()){return;}
     arma::mat& polarPts = polar->getPolar();
@@ -72,9 +78,15 @@ void PolarGoal::calcDifferenceToPolar(){
     cLCD.col(0) = polarPts.col(0);
     if(mode == cD){
         cLCD.col(1) = polarPts.col(1);
-    }else{
+    }else if(mode == cLAlpha){
         cLCD.col(1) = cLCD.col(0);
         cLCD.col(0) = polarPts.col(2);
+    }else{
+        for(int i = 0; i < cLCD.n_rows; i++){
+            cLCD(i,1) =polarPts(cLCD.n_rows-(1+i),0);
+            //turn araound order
+            cLCD(i,0) = polarPts(cLCD.n_rows-(1+i),3);
+        }
     }
 
     //Coordinates for visualizing area
@@ -90,7 +102,7 @@ void PolarGoal::calcDifferenceToPolar(){
             for(int j=0; j<pts.n_rows; j++){
 
                 arma::vec ptOnPolar;
-                if(mode == cLAlpha){
+                if(mode == cLAlpha || mode == XTrTop){
                     double ptcL = interpolate(cLCD,pts(j,0));
                     ptOnPolar = arma::vec{pts(j,0),ptcL};
                 }else{

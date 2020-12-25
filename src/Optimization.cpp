@@ -13,23 +13,24 @@ const double OptimizationThread::fitness(const dlib::matrix<double>& coefs){
     double fitness = 0;
 
     if(!runOptimization){
-        //terminate();
         return 0;
     }
 
     try{
-        //std::cout << "I try using"<< coefs << std::endl;
-        //assign new coefs
+
         int n = 0;
-        for(BernsteinShapeInterface* shape : shapes){
-            arma::vec shapeCoefs(shape->getN());
-            for(int i=0; i< shape->getN(); i++){
+        for(Polar* polar : polars){
+            polar->getMode()->setEta(coefs(n)*10,false);
+            n++;
+        }
+
+        for(int j=0; j<shapes.size();j++){
+            arma::vec shapeCoefs(shapes[j]->getN());
+            for(int i=0; i< shapes[j]->getN(); i++){
                 shapeCoefs(i) = coefs(i+n);
             }
-            n+=shape->getN();
-            shape->setCoefficients(shapeCoefs);
-            shape->update();
-            //std::cout << shapeCoefs << std::endl;
+            n+=shapes[j]->getN();
+            shapes[j]->setCoefficients(shapeCoefs,shapes.size()==(j+1));
         }
 
         //YPlus
@@ -41,22 +42,17 @@ const double OptimizationThread::fitness(const dlib::matrix<double>& coefs){
         //TurbBot
         airfoil->setAttribute(Airfoil::setTurbBot,coefs(coefs.nr()-3)/10,false);
 
-        //std::vector<QThread*> threads;
-        std::vector<Polar*> polars;
-        for(PolarGoal* polarGoal : polarGoals){
-            polars.push_back(polarGoal->getPolar());
+        //Wait for polars to calc
+        for(int i = 0; i< polars.size();i++){
+            polars[i]->thread->wait(20*1000);
         }
 
-        //for(Polar* polar: polars){
-        //    threads.push_back(polar->calcOnDemand());
-        //}
-
-        for(int i = 0; i< polars.size();i++){
-            //threads[i]->wait(20*1000);
-            polars[i]->thread->wait(20*1000);
-            if(polars[i]->getSuccess() & polars[i]->getBorderTight()){
+        for(int i = 0; i< polarGoals.size();i++){
+            if(polarGoals[i]->getPolar()->getSuccess() &&
+                    polarGoals[i]->getPolar()->getBorderTight()){
                 double add = polarGoals[i]->getArea();
                 if(polarGoals[i]->getMode() == PolarGoal::cD){add*=200;} //Cd very small
+                if(polarGoals[i]->getMode() == PolarGoal::XTrTop){add*=10;}
                 fitness += add;
                 std::cout << "mode: " << polarGoals[i]->getMode() << std::endl;
                 std::cout << "adding: " << add << std::endl;
@@ -67,9 +63,17 @@ const double OptimizationThread::fitness(const dlib::matrix<double>& coefs){
         }
 
         //Add Thickness panelty
-        //fitness += (airfoil->getThickness()-0.1375) * 10;
+        double add = std::max(0.138-airfoil->getThickness(), 0.0) * 100;
+        fitness += add;
+        std::cout << "thickAdd: " << add << std::endl;
+
+        add = std::max((airfoil->getFkThickness()-0.07) * 100,0.0);
+        std::cout << "FkThickness: " << airfoil->getFkThickness() << std::endl;
+        fitness += add;
+        std::cout << "thickFkAdd: " << add << std::endl;
         
         std::cout << "overall: " << fitness << std::endl;
+        std::cout << "\n"<< std::endl;
   }
   catch (exception& e){
       std::cout << e.what() << std::endl;
@@ -89,25 +93,41 @@ void OptimizationThread::run(){
     for(BernsteinShape* shape : shapes){
             n_coefs+=shape->getCoefficients().n_rows;
     }
+    int n_polars;
+    polars.clear();
+    for(PolarGoal* goal : polarGoals){
+            Polar* polar=goal->getPolar();
+            if(std::find(begin(polars),end(polars),polar) == end(polars)){
+                polars.push_back(polar);
+            }
+    }
 
     //resize start
-    start.set_size(n_coefs+3);
+    start.set_size(n_coefs+3+polars.size());
+
+    arma::vec bounds{-2.0,2.0};
+    arma::vec boundsEta{-20.0,25.0};
+
+    dlib::matrix<double,0,1> lb = start;
+    dlib::matrix<double,0,1> ub = start;
 
     int n = 0;
+    for(Polar* polar : polars){
+        start(n) = polar->getMode()->getEta()/10;
+        lb(n)=min(boundsEta)/10;
+        ub(n)=max(boundsEta)/10;
+        n++;
+    }
+
     for(BernsteinShape* shape : shapes){
         arma::vec& coefs = shape->getCoefficients();
         for(int i = 0; i<coefs.n_rows; i++){
             start(n) = coefs.at(i);
+            lb(n)=start(n)+min(bounds);
+            ub(n)=start(n)+max(bounds);
             n++;
         }
     }
-
-    arma::vec bounds{-2.0,2.0};
-
-    dlib::matrix<double,0,1> lb = start;
-    dlib::matrix<double,0,1> ub = start;
-    lb+=min(bounds);
-    ub+=max(bounds);
 
     //YPlus
     start(start.nr()-1) = airfoil->getYPlus()*10;
@@ -124,7 +144,8 @@ void OptimizationThread::run(){
     lb(lb.nr()-3) = 0.5*10;
     ub(ub.nr()-3) = 1.0*10;
 
-    std::cout << lb << ub << std::endl;
+    std::cout << "lower" << lb << "upper" << ub << std::endl;
+    std::cout << "start" << start << std::endl;
 
     dlib::find_min_bobyqa([this](const dlib::matrix<double>& coefs) {return this->fitness(coefs);},
            start,n_coefs*2,lb,ub,0.2,1e-4,1000);

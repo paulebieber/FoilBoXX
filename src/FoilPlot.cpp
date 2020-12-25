@@ -15,8 +15,8 @@ FoilPlot::FoilPlot(QwtCustomPlot* plot, AirfoilInterface* airfoil):plot(plot),pe
         baseCurves[i]->setRenderHint(QwtPlotCurve::RenderAntialiased,true);
     }
 
-    connect(airfoil,&AirfoilInterface::visibleChanged,this,&FoilPlot::setVisible,Qt::QueuedConnection);
-    connect(airfoil,&AirfoilInterface::activeChanged,this,&FoilPlot::setActive,Qt::QueuedConnection);
+    connect(airfoil,&AirfoilInterface::visibleChanged,this,&FoilPlot::setVisible);
+    connect(airfoil,&AirfoilInterface::activeChanged,this,&FoilPlot::setActive);
     connect(airfoil,&AirfoilInterface::replot,this,&FoilPlot::plotCoords,Qt::QueuedConnection);
 }
 

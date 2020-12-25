@@ -289,6 +289,7 @@ void Airfoil::baseCoords() {
         fkCoordsTop = coordsFromX(upperBaseCoords,upperFlapPtDesignExtracted(0)-0.01,true,true);
         fkCoordsTop = coordsFromX(fkCoordsTop,upperFlapPtDesign(0)+0.005,false,true);
 
+        fkThickness = r_top+r_bot;
         fkCoordsBot = upperBaseCoords;
         for (int i = 1; i < fkCoordsBot.n_rows-2; ++i) {
 
@@ -296,7 +297,7 @@ void Airfoil::baseCoords() {
             double norm = sqrt(pow(deltaOrtho(0),2)+pow(deltaOrtho(1),2));
             deltaOrtho /= norm;
             arma::vec camb = upperBaseCoords.row(i).t();
-            fkCoordsBot.row(i) = (camb-(r_top+r_bot)*deltaOrtho).t();
+            fkCoordsBot.row(i) = (camb-fkThickness*deltaOrtho).t();
         }
 
         fkCoordsBot = coordsFromX(fkCoordsBot,lowerFlapPtDesignExtracted(0)-0.0225,true,true);

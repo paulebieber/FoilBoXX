@@ -8,8 +8,8 @@ AirfoilInterface::AirfoilInterface(QTreeWidget* tree, QString name): thicknessXf
     name(name), hasFile(false), flapRelChanged(true){
 
     connect(this,&AirfoilInterface::changed,this,[=](){
-                ui.thickness->setText(QString::number(thickness*100.0,'f',2) + " %");
-            },Qt::QueuedConnection);
+                ui.thickness->setText(QString::number(thickness*100.0,'f',2) + " %");},Qt::QueuedConnection);
+    connect(this,&AirfoilInterface::changed,this,&AirfoilInterface::changeFlapText,Qt::QueuedConnection);
     
     setName(name);
     setBold(true);  
@@ -57,6 +57,12 @@ QDataStream& operator>>(QDataStream& in, AirfoilInterface& airfoil){
 void AirfoilInterface::changedBaseCoords(bool nChanged){
 
     thickness = thicknessXfoil.calcJustThickness();
+    emit changed();
+    if(nChanged){emit replot();}
+}
+
+void AirfoilInterface::changeFlapText(){
+
     if(flapByRel){
         ui.doubleSpinBox_flapY->blockSignals(true);
         ui.doubleSpinBox_flapY->setValue(getFlapYAbsolute());
@@ -75,8 +81,6 @@ void AirfoilInterface::changedBaseCoords(bool nChanged){
         flapRelChanged = false;
     }
 
-    emit changed();
-    if(nChanged){emit replot();}
 }
 
 void AirfoilInterface::onActivation(bool active, bool recursively){

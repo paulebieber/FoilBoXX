@@ -7,8 +7,9 @@ FoilMode::FoilMode(AirfoilInterface* airfoil, ModePlot* modePlot):HierarchyEleme
 
     connectToFoil(airfoil);
     modePlot->connectToMode(this);
-    setItemText();
     setupInterface();
+
+    connect(this,&FoilMode::changed,this,[=](){setItemText();});
 
     calcCoords();
 }
@@ -155,7 +156,6 @@ void FoilMode::setEta(double eta, bool recalc){
 
     this->eta = eta;
     if(recalc){calcCoords();}
-    setItemText();
 }
 
 void FoilMode::setFK(bool on, bool recalc){

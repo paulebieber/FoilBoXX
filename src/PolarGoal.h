@@ -22,7 +22,7 @@ friend QDataStream& operator>>(QDataStream& in, PolarGoal& goal); //For Serriali
     double area;
     double bias; //Reference on scale for Optimization;
 
-    public:enum Modes{cD,cLAlpha};
+    public:enum Modes{cD,cLAlpha,XTrTop};
     private:
     Modes mode;
     bool verticalDiff;

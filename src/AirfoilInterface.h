@@ -66,6 +66,9 @@ public:
         return &colors[nCol++];
     };
 
+public slots:
+    void changeFlapText();
+
 signals:
     void changed();
     void activated(bool recursively);
