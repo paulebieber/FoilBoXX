@@ -64,7 +64,7 @@ QDataStream& operator<<(QDataStream& out, const Polar& polar){
 QDataStream& operator>>(QDataStream& in, Polar& polar){
 
     int calcModeInt;
-    if(polar.fileVersion == QString("0.6.0") || polar.fileVersion == QString("0.6.1")){
+    if(polar.fileVersion != QString("0.5.0") && polar.fileVersion != QString("0.5.1")){
         in >> calcModeInt;
         polar.calcMode = (Polar::calcTypes)calcModeInt;
         if (polar.calcMode == Analysis::clCalc){

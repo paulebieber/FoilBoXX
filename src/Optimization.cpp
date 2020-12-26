@@ -51,8 +51,6 @@ const double OptimizationThread::fitness(const dlib::matrix<double>& coefs){
             if(polarGoals[i]->getPolar()->getSuccess() &&
                     polarGoals[i]->getPolar()->getBorderTight()){
                 double add = polarGoals[i]->getArea();
-                if(polarGoals[i]->getMode() == PolarGoal::cD){add*=200;} //Cd very small
-                if(polarGoals[i]->getMode() == PolarGoal::XTrTop){add*=10;}
                 fitness += add;
                 std::cout << "mode: " << polarGoals[i]->getMode() << std::endl;
                 std::cout << "adding: " << add << std::endl;

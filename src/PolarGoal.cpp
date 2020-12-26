@@ -4,8 +4,8 @@
 #include <iostream>
 #include <iterator>
 
-PolarGoal::PolarGoal(QwtCustomPlot* plot, Modes mode, Polar* polar):HierarchyElement(polar),
-    plot(plot),polar(polar),mode(mode),verticalDiff(mode != cD),normalDiff(false){
+PolarGoal::PolarGoal(QwtCustomPlot* plot, Modes mode, Polar* polar, QString fileVersion):HierarchyElement(polar),
+    plot(plot),polar(polar),mode(mode),verticalDiff(mode != cD),normalDiff(false),bias(1.0),fileVersion(fileVersion){
 
     curveArea->attach(plot);
     curveArea->setYAxis(QwtPlot::yRight);
@@ -22,6 +22,7 @@ PolarGoal::PolarGoal(QwtCustomPlot* plot, Modes mode, Polar* polar):HierarchyEle
     dragCurve = new DraggableCurve(plot,dragInit);
 
     connect(this,&PolarGoal::calced,this,&PolarGoal::plotDiff,Qt::QueuedConnection);
+    connect(this,&PolarGoal::calced,this,[=](){ui.label_multi->setText(QString::number(area));},Qt::QueuedConnection);
     connect(polar->thread,&WorkerThread::resultReady,this,&PolarGoal::calcDifferenceToPolar,Qt::DirectConnection);
 
     connect(dragCurve,&DraggableCurve::ptsChanged,this,&PolarGoal::calcDifferenceToPolar);
@@ -49,13 +50,18 @@ QDataStream& operator<<(QDataStream& out, const PolarGoal& goal){
     }else{
         out << QString("PolarGoalXTrTop");
     }
+    out << goal.bias;
     out << *goal.dragCurve;
     return out;
 }
 
 QDataStream& operator>>(QDataStream& in, PolarGoal& goal){
 
+    if(goal.fileVersion == QString("0.6.2")){
+        in >> goal.bias;
+    }
     in >> *goal.dragCurve;
+    goal.setInterfaceValues();
     goal.plotDiff();
 
     return in;
@@ -67,8 +73,6 @@ void PolarGoal::calcDifferenceToPolar(){
 
     int n_disc = 100;
     int count = 0;
-
-    //bias = plot->axisScaleDiv(QwtPlot::yRight).range() * plot->axisScaleDiv(QwtPlot::xBottom).range();
 
     if(!polar->getSuccess()){return;}
     arma::mat& polarPts = polar->getPolar();
@@ -116,6 +120,9 @@ void PolarGoal::calcDifferenceToPolar(){
                 count+=2;
             }
         }
+        if(mode == cD){area*=200;} //Cd very small
+        if(mode == XTrTop){area*=10;}
+        area *= bias;
         //std::cout << "area" << area << std::endl;
     }else{
         areaCoords = arma::mat(0,2);
@@ -148,8 +155,24 @@ void PolarGoal::plotDiff(){
 
 void PolarGoal::setUpInterface(){
     ui.setupUi(&widget);
+
+    ui.doubleSpinBox_multi->setRange(0.01,10.0);
+    ui.doubleSpinBox_multi->setDecimals(3);
+    ui.doubleSpinBox_multi->setSingleStep(0.1);
+
     widget.show();
-    connect(ui.checkBox_verticalDiff,&QCheckBox::stateChanged,[this](bool state){verticalDiff = state;calcDifferenceToPolar();});
+
+    //connect(ui.checkBox_verticalDiff,&QCheckBox::stateChanged,[this](bool state){verticalDiff = state;calcDifferenceToPolar();});
+    connect(ui.doubleSpinBox_multi,QOverload<double>::of(&QDoubleSpinBox::valueChanged),this,[=](double value){bias=value;calcDifferenceToPolar();});
+
+    setInterfaceValues();
+}
+
+void PolarGoal::setInterfaceValues(){
+    std::list<QObject*> toChange({ui.doubleSpinBox_multi});
+    for(QObject* obj : toChange){obj->blockSignals(true);}
+    ui.doubleSpinBox_multi->setValue(bias);
+    for(QObject* obj : toChange){obj->blockSignals(true);}
 }
 
 void PolarGoal::setItemText(QString string){

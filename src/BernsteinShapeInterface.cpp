@@ -46,7 +46,7 @@ QDataStream& operator>>(QDataStream& in, BernsteinShapeInterface& shape){
     int sideInt;
     in >> sideInt;
     shape.side = (BernsteinShapeInterface::sideType)sideInt;
-    if(shape.fileVersion == QString("0.6.1")){
+    if(shape.fileVersion != QString("0.5.0") && shape.fileVersion != QString("0.5.1")){
         bool modi; in >> modi; shape.setModifying(modi,true);
     }
     QVector<double> vec;

@@ -60,7 +60,7 @@ Q_OBJECT
     void saveFlap(FoilMode* mode);
     void saveAirfoil(AirfoilInterface* airfoil);
     void saveAirfoilAs(AirfoilInterface* airfoil);
-    void loadAirfoil();
+    bool loadAirfoil();
     void loadCoords();
     BernsteinShapeInterface* newBernsteinShape(AirfoilInterface* airfoil);
 

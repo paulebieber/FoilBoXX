@@ -37,6 +37,5 @@ public slots:
     void run() override;
  
 signals:
-    //void readyForShapePlot(BernsteinShape* shape);
     void finished();
 };

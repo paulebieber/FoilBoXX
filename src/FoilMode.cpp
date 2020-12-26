@@ -155,13 +155,15 @@ void FoilMode::setItemText(QString string){
 void FoilMode::setEta(double eta, bool recalc){
 
     this->eta = eta;
-    if(recalc){calcCoords();}
+    if(recalc){calcCoords();
+    }else{setInterfaceValues();}
 }
 
 void FoilMode::setFK(bool on, bool recalc){
 
     fk = on;
-    if(recalc){calcCoords();}
+    if(recalc){calcCoords();
+    }else{setInterfaceValues();}
 }
 
 void FoilMode::onActivation(bool active, bool recursively){
@@ -207,6 +209,9 @@ void FoilMode::setupInterface(){
 
 void FoilMode::setInterfaceValues(){
 
+    std::list<QObject*> toChange({ui.checkBox_fk,ui.doubleSpinBox_eta});
+    for(QObject* obj : toChange){obj->blockSignals(true);}
+
     if(modeType == full){
         ui.doubleSpinBox_eta->setValue(eta);
         ui.checkBox_fk->setChecked(fk);
@@ -214,4 +219,5 @@ void FoilMode::setInterfaceValues(){
         uiCoords.doubleSpinBox_turbTop->setValue(turbTop(0));
         uiCoords.doubleSpinBox_turbBot->setValue(turbBot(0));
     }
+    for(QObject* obj : toChange){obj->blockSignals(true);}
 }

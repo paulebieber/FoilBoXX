@@ -26,7 +26,7 @@ Interface::Interface(QApplication& app, QString version):app(app), version(versi
     foilPlotWidget->connectToAxis(pressurePlotWidget);
 
     connectBarGeneral();
-    newFoil(false);
+    if(!loadAirfoil()){newFoil();};
     activeAirfoil = airfoils.back();
 
     splitter->setSizes(QList<int>() << 250 << 450);
@@ -131,7 +131,7 @@ void Interface::writeAirfoil(AirfoilInterface* airfoil){
     file.close();
 }
 
-void Interface::loadAirfoil(){
+bool Interface::loadAirfoil(){
 
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Airfoil"),tr("Airfoil (*.af)"));
     
@@ -148,7 +148,7 @@ void Interface::loadAirfoil(){
         in >> magic;
         in >> fileVersion;
         
-        if((magic != (quint32)0xA0C0C0B0)){return;}
+        if((magic != (quint32)0xA0C0C0B0)){return false;}
 
         newFoil(true);
         in >> *airfoils.back();
@@ -204,6 +204,9 @@ void Interface::loadAirfoil(){
         for(FoilMode* mode: modes){mode->blockSignals(false);}
         airfoils.back()->baseCoords();
         file.close();
+        return true;
+    }else{
+        return false;
     }
 }
 
@@ -430,7 +433,7 @@ void Interface::newPolar(FoilMode* mode){
 
 void Interface::newPolarGoal(Polar* polar, PolarGoal::Modes mode){
 
-    PolarGoal* polarGoal = new PolarGoal(polarPlotWidget->getPlots()[(int)mode],mode,polar);
+    PolarGoal* polarGoal = new PolarGoal(polarPlotWidget->getPlots()[(int)mode],mode,polar,fileVersion);
     polarGoals.push_back(polarGoal);
 
     layout_analysis->addWidget(polarGoal->getWidget());

@@ -61,6 +61,8 @@ public:
     double getThickness(){return thickness;};
     void setFoilType(foilType type){this->type = type; emit visibleChanged(type==coords ? true : false);}
     foilType getFoilType(){return type;}
+    void setAttribute(Airfoil::attributes att,double value, bool recalc){Airfoil::setAttribute(att,value,recalc);
+                                                                if(!recalc){setInterfaceValues();}}
 
     QColor* getColor(){
         return &colors[nCol++];

@@ -1,7 +1,6 @@
 // Created by paul on 3/12/20.
 
 #include "AirfoilInterface.h"
-#include <qnamespace.h>
 #include <QDebug>
 
 AirfoilInterface::AirfoilInterface(QTreeWidget* tree, QString name): thicknessXfoil(getFlosse()),HierarchyElement(tree),
@@ -157,6 +156,11 @@ void AirfoilInterface::setupInterface(){
 
 void AirfoilInterface::setInterfaceValues(){
 
+    std::list<QObject*> toChange({ui.doubleSpinBox_flapX,ui.doubleSpinBox_flapY,ui.doubleSpinBox_yNose,
+                            ui.doubleSpinBox_yPlus,ui.doubleSpinBox_yMinus,ui.doubleSpinBox_turbBot,ui.doubleSpinBox_turbTop,
+                            ui.doubleSpinBox_flapY_rel,ui.groupBox_fk,ui.groupBox_Turb});
+    for(QObject* obj : toChange){obj->blockSignals(true);}
+
     ui.doubleSpinBox_yPlus->setValue(getYPlus());
     ui.doubleSpinBox_yMinus->setValue(getYMinus());
     ui.doubleSpinBox_yNose->setValue(getNoseY());
@@ -173,4 +177,8 @@ void AirfoilInterface::setInterfaceValues(){
     auto turb = getTurb();
     ui.doubleSpinBox_turbTop->setValue(turb[0]);
     ui.doubleSpinBox_turbBot->setValue(turb[1]);
+    ui.groupBox_Turb->setChecked(turbOn);
+    ui.groupBox_fk->setChecked(fk);
+
+    for(QObject* obj : toChange){obj->blockSignals(false);}
 }
