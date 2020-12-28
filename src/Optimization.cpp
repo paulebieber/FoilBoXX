@@ -3,6 +3,7 @@
 #include "dlib/optimization/optimization.h"
 #include "dlib/optimization/optimization_bobyqa.h"
 #include <iostream>
+#include <ostream>
 #include <qnamespace.h>
 
 OptimizationThread::OptimizationThread():runOptimization(false){
@@ -18,19 +19,12 @@ const double OptimizationThread::fitness(const dlib::matrix<double>& coefs){
 
     try{
 
+        std::cout << "Iteration \n" << "=============" << std::endl;
         int n = 0;
-        for(Polar* polar : polars){
-            polar->getMode()->setEta(coefs(n)*10,false);
+        for(FoilMode* mode : modes){
+            std::cout << "Setting eta " << coefs(n) << std::endl;
+            mode->setEta(coefs(n)*10,false);
             n++;
-        }
-
-        for(int j=0; j<shapes.size();j++){
-            arma::vec shapeCoefs(shapes[j]->getN());
-            for(int i=0; i< shapes[j]->getN(); i++){
-                shapeCoefs(i) = coefs(i+n);
-            }
-            n+=shapes[j]->getN();
-            shapes[j]->setCoefficients(shapeCoefs,shapes.size()==(j+1));
         }
 
         //YPlus
@@ -42,9 +36,19 @@ const double OptimizationThread::fitness(const dlib::matrix<double>& coefs){
         //TurbBot
         airfoil->setAttribute(Airfoil::setTurbBot,coefs(coefs.nr()-3)/10,false);
 
+        for(int j=0; j<shapes.size();j++){
+            arma::vec shapeCoefs(shapes[j]->getN());
+            for(int i=0; i< shapes[j]->getN(); i++){
+                shapeCoefs(i) = coefs(i+n);
+            }
+            n+=shapes[j]->getN();
+            shapes[j]->setCoefficients(shapeCoefs,shapes.size()==(j+1));
+            //shapes[j]->setCoefficients(shapeCoefs,false);
+        }
+
         //Wait for polars to calc
         for(int i = 0; i< polars.size();i++){
-            polars[i]->thread->wait(20*1000);
+            polars[i]->thread->wait(7*1000); //Wait 7 secs
         }
 
         for(int i = 0; i< polarGoals.size();i++){
@@ -52,7 +56,7 @@ const double OptimizationThread::fitness(const dlib::matrix<double>& coefs){
                     polarGoals[i]->getPolar()->getBorderTight()){
                 double add = polarGoals[i]->getArea();
                 fitness += add;
-                std::cout << "mode: " << polarGoals[i]->getMode() << std::endl;
+                std::cout << " Goal mode: " << polarGoals[i]->getMode() << "\n--------------"<< std::endl;
                 std::cout << "adding: " << add << std::endl;
             }else{
                 std::cout << "fitness += 1" << std::endl;
@@ -65,7 +69,7 @@ const double OptimizationThread::fitness(const dlib::matrix<double>& coefs){
         fitness += add;
         std::cout << "thickAdd: " << add << std::endl;
 
-        add = std::max((airfoil->getFkThickness()-0.07) * 100,0.0);
+        add = std::max((0.07-airfoil->getFkThickness()) * 100,0.0);
         std::cout << "FkThickness: " << airfoil->getFkThickness() << std::endl;
         fitness += add;
         std::cout << "thickFkAdd: " << add << std::endl;
@@ -93,15 +97,20 @@ void OptimizationThread::run(){
     }
     int n_polars;
     polars.clear();
+    modes.clear();
     for(PolarGoal* goal : polarGoals){
             Polar* polar=goal->getPolar();
+            FoilMode* mode=polar->getMode();
             if(std::find(begin(polars),end(polars),polar) == end(polars)){
                 polars.push_back(polar);
+            }
+            if(!mode->getSmoothLower() && !mode->getSmoothUpper() && std::find(begin(modes),end(modes),mode) == end(modes)){
+                modes.push_back(mode);
             }
     }
 
     //resize start
-    start.set_size(n_coefs+3+polars.size());
+    start.set_size(n_coefs+3+modes.size());
 
     arma::vec bounds{-2.0,2.0};
     arma::vec boundsEta{-20.0,25.0};
@@ -110,8 +119,8 @@ void OptimizationThread::run(){
     dlib::matrix<double,0,1> ub = start;
 
     int n = 0;
-    for(Polar* polar : polars){
-        start(n) = polar->getMode()->getEta()/10;
+    for(FoilMode* mode : modes){
+        start(n) = mode->getEta()/10;
         lb(n)=min(boundsEta)/10;
         ub(n)=max(boundsEta)/10;
         n++;

@@ -3,7 +3,7 @@
 #include "AirfoilInterface.h"
 #include <QDebug>
 
-AirfoilInterface::AirfoilInterface(QTreeWidget* tree, QString name): thicknessXfoil(getFlosse()),HierarchyElement(tree),
+AirfoilInterface::AirfoilInterface(QTreeWidget* tree, QString name): thicknessXfoil(getFlosseCut()),HierarchyElement(tree),
     name(name), hasFile(false), flapRelChanged(true){
 
     connect(this,&AirfoilInterface::changed,this,[=](){
@@ -106,6 +106,8 @@ void AirfoilInterface::setupInterface(){
     //UIWidget
     ui.setupUi(&widget);
     setInterfaceValues(); 
+
+    connect(this,&AirfoilInterface::reInterface,this,&AirfoilInterface::setInterfaceValues);
 
     connect(ui.doubleSpinBox_yPlus,QOverload<double>::of(&QDoubleSpinBox::valueChanged),[this](double yPlus){setAttribute(setYPlus,yPlus,true);});
     connect(ui.doubleSpinBox_yMinus,QOverload<double>::of(&QDoubleSpinBox::valueChanged),[this](double yMinus){setAttribute(setYMinus,yMinus,true);});

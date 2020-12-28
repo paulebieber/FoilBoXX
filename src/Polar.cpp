@@ -15,6 +15,7 @@ Polar::Polar(std::vector<QwtCustomPlot*> plots, FoilMode* mode, QString& fileVer
 
     //Plot when parallel proc. done
     connect(thread,&WorkerThread::resultReady,this,&Polar::plot,Qt::QueuedConnection);
+    connect(this,&Polar::plotLater,this,&Polar::plot,Qt::QueuedConnection);
 
     setItemText();
     setCurveColor(mode->getColor());
@@ -160,7 +161,7 @@ void Polar::onActivation(bool active, bool recursively){
     curveCLXTrBot->setPen(pen);
     curveCM->setPen(pen);
 
-    plot();
+    emit plotLater();
 
     if(active){emit activated(recursively);}
 }
@@ -173,7 +174,7 @@ void Polar::onVisible(bool visible){
     curveCLXTrBot->setVisible(visible);
     curveCM->setVisible(visible);
 
-    plot();
+    emit plotLater();
 }
 
 void Polar::setItemText(){
@@ -183,7 +184,7 @@ void Polar::setItemText(){
 
 void Polar::setCurveColor(QColor color){
     pen.setColor(color);
-    plot();
+    plotLater();
 }
 
 void Polar::needsUpdate(bool need) {

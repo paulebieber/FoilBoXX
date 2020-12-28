@@ -22,7 +22,6 @@ PolarGoal::PolarGoal(QwtCustomPlot* plot, Modes mode, Polar* polar, QString file
     dragCurve = new DraggableCurve(plot,dragInit);
 
     connect(this,&PolarGoal::calced,this,&PolarGoal::plotDiff,Qt::QueuedConnection);
-    connect(this,&PolarGoal::calced,this,[=](){ui.label_multi->setText(QString::number(area));},Qt::QueuedConnection);
     connect(polar->thread,&WorkerThread::resultReady,this,&PolarGoal::calcDifferenceToPolar,Qt::DirectConnection);
 
     connect(dragCurve,&DraggableCurve::ptsChanged,this,&PolarGoal::calcDifferenceToPolar);
@@ -47,8 +46,10 @@ QDataStream& operator<<(QDataStream& out, const PolarGoal& goal){
         out << QString("PolarGoalCLAlpha");
     }else if(goal.mode == PolarGoal::cD){
         out << QString("PolarGoalCD");
-    }else{
+    }else if(goal.mode == PolarGoal::XTrTop){
         out << QString("PolarGoalXTrTop");
+    }else if(goal.mode == PolarGoal::XTrBot){
+        out << QString("PolarGoalXTrBot");
     }
     out << goal.bias;
     out << *goal.dragCurve;
@@ -85,12 +86,15 @@ void PolarGoal::calcDifferenceToPolar(){
     }else if(mode == cLAlpha){
         cLCD.col(1) = cLCD.col(0);
         cLCD.col(0) = polarPts.col(2);
-    }else{
+    }else if(mode == XTrTop){
         for(int i = 0; i < cLCD.n_rows; i++){
             cLCD(i,1) =polarPts(cLCD.n_rows-(1+i),0);
             //turn araound order
             cLCD(i,0) = polarPts(cLCD.n_rows-(1+i),3);
         }
+    }else if (mode == XTrBot){
+        cLCD.col(1) = cLCD.col(0);
+        cLCD.col(0) = polarPts.col(4);
     }
 
     //Coordinates for visualizing area
@@ -106,14 +110,19 @@ void PolarGoal::calcDifferenceToPolar(){
             for(int j=0; j<pts.n_rows; j++){
 
                 arma::vec ptOnPolar;
-                if(mode == cLAlpha || mode == XTrTop){
+                if(mode == cLAlpha || mode == XTrTop || mode == XTrBot){
                     double ptcL = interpolate(cLCD,pts(j,0));
                     ptOnPolar = arma::vec{pts(j,0),ptcL};
+                    area += diff*distanceBetweenPoints(ptOnPolar,pts.row(j).t());
                 }else{
                     double ptcD = interpolate(cLCD,pts(j,1));
-                    ptOnPolar = arma::vec{ptcD,pts(j,1)};
+                    if(pts(j,0) >= ptcD){
+                        ptOnPolar = pts.row(j).t();
+                    }else{
+                        ptOnPolar = arma::vec{ptcD,pts(j,1)};
+                    }
+                    area += diff*distanceBetweenPoints(ptOnPolar,pts.row(j).t());
                 }
-                area += diff*distanceBetweenPoints(ptOnPolar,pts.row(j).t());
 
                 areaCoords.row(count) = pts.row(j);
                 areaCoords.row(count+1)= ptOnPolar.t();
@@ -121,7 +130,7 @@ void PolarGoal::calcDifferenceToPolar(){
             }
         }
         if(mode == cD){area*=200;} //Cd very small
-        if(mode == XTrTop){area*=10;}
+        if(mode == XTrTop || mode == XTrBot){area*=10;}
         area *= bias;
         //std::cout << "area" << area << std::endl;
     }else{
@@ -160,10 +169,12 @@ void PolarGoal::setUpInterface(){
     ui.doubleSpinBox_multi->setDecimals(3);
     ui.doubleSpinBox_multi->setSingleStep(0.1);
 
+    connect(this,&PolarGoal::calced,this,[=](){ui.label_multi->setText(QString::number(area));},Qt::QueuedConnection);
+
     widget.show();
 
     //connect(ui.checkBox_verticalDiff,&QCheckBox::stateChanged,[this](bool state){verticalDiff = state;calcDifferenceToPolar();});
-    connect(ui.doubleSpinBox_multi,QOverload<double>::of(&QDoubleSpinBox::valueChanged),this,[=](double value){bias=value;calcDifferenceToPolar();});
+    connect(ui.doubleSpinBox_multi,QOverload<double>::of(&QDoubleSpinBox::valueChanged),[=](double value){bias=value;calcDifferenceToPolar();});
 
     setInterfaceValues();
 }
@@ -172,7 +183,7 @@ void PolarGoal::setInterfaceValues(){
     std::list<QObject*> toChange({ui.doubleSpinBox_multi});
     for(QObject* obj : toChange){obj->blockSignals(true);}
     ui.doubleSpinBox_multi->setValue(bias);
-    for(QObject* obj : toChange){obj->blockSignals(true);}
+    for(QObject* obj : toChange){obj->blockSignals(false);}
 }
 
 void PolarGoal::setItemText(QString string){

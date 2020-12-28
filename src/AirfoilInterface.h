@@ -62,7 +62,7 @@ public:
     void setFoilType(foilType type){this->type = type; emit visibleChanged(type==coords ? true : false);}
     foilType getFoilType(){return type;}
     void setAttribute(Airfoil::attributes att,double value, bool recalc){Airfoil::setAttribute(att,value,recalc);
-                                                                if(!recalc){setInterfaceValues();}}
+                                                                if(!recalc){emit reInterface();}}
 
     QColor* getColor(){
         return &colors[nCol++];
@@ -76,6 +76,7 @@ signals:
     void activated(bool recursively);
     void visibleChanged(bool visible);
     void replot();
+    void reInterface();
     void activeChanged(bool active);
     void calcAllPolars();
     void optimizePolars();

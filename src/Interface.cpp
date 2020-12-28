@@ -191,6 +191,10 @@ bool Interface::loadAirfoil(){
                 newPolarGoal(polars.back(),PolarGoal::XTrTop);
                 in >> *polarGoals.back();
             }
+            else if(string == QString("PolarGoalXTrBot")){
+                newPolarGoal(polars.back(),PolarGoal::XTrBot);
+                in >> *polarGoals.back();
+            }
             //and Bernsteins 
             else if(string == QString("BernsteinShape")){
                 BernsteinShapeInterface* shape = newBernsteinShape(airfoils.back());
@@ -433,7 +437,7 @@ void Interface::newPolar(FoilMode* mode){
 
 void Interface::newPolarGoal(Polar* polar, PolarGoal::Modes mode){
 
-    PolarGoal* polarGoal = new PolarGoal(polarPlotWidget->getPlots()[(int)mode],mode,polar,fileVersion);
+    PolarGoal* polarGoal = new PolarGoal(polarPlotWidget->getPlots()[min((int)mode,2)],mode,polar,fileVersion);
     polarGoals.push_back(polarGoal);
 
     layout_analysis->addWidget(polarGoal->getWidget());
@@ -481,7 +485,9 @@ void Interface::connectBarGeneral(){
     connect(actionadd_AnalysisPoint,&QAction::triggered,[this](){newAnalysisPoint(activeMode);});
     connect(actionadd_Polar,&QAction::triggered,[this](){newPolar(activeMode);});
     connect(actionadd_PolarGoal,&QAction::triggered,[this](){newPolarGoal(activePolar);});
-    connect(actionadd_PolarGoalForCLAlpha,&QAction::triggered,[this](){newPolarGoal(activePolar,PolarGoal::XTrTop);});
+    connect(actionadd_PolarGoalForCLAlpha,&QAction::triggered,[this](){newPolarGoal(activePolar,PolarGoal::cLAlpha);});
+    connect(actionadd_PolarGoalForXTrTop,&QAction::triggered,[this](){newPolarGoal(activePolar,PolarGoal::XTrTop);});
+    connect(actionadd_PolarGoalForXTrBot,&QAction::triggered,[this](){newPolarGoal(activePolar,PolarGoal::XTrBot);});
     connect(actionadd_FoilMode,&QAction::triggered,[this](){newFoilMode(activeAirfoil);});
     connect(actionadd_ShapeFunction,&QAction::triggered,[this](){newBernsteinShape(activeAirfoil);});
     connect(actionset_Name,&QAction::triggered,this,&Interface::setAirfoilName);

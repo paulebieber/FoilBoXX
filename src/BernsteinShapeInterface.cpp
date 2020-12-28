@@ -192,7 +192,7 @@ void BernsteinShapeInterface::setupInterface(){
     connect(ui.radioButton_top,&QRadioButton::toggled,[this](bool on){
             setSide(on ? top : bottom);
         });
-    ui.doubleSpinBox_dragWidth->setRange(0.05,0.5);
+    ui.doubleSpinBox_dragWidth->setRange(0.01,0.5);
     ui.doubleSpinBox_dragWidth->setSingleStep(0.01);
     setInterfaceValues();
     connect(ui.spinBox_nDisc,QOverload<int>::of(&QSpinBox::valueChanged),this,&BernsteinShapeInterface::changeNCoefs);

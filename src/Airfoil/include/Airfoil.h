@@ -23,6 +23,7 @@ class Airfoil{
     arma::vec upperFlapPtDesignExtracted, lowerFlapPtDesignExtracted;
 
     arma::mat flosse;
+    arma::mat flosseCut;
     arma::mat fkCoordsTop, fkCoordsBot;
     arma::mat fkCoordsTopRetracted, fkCoordsBotRetracted;
     arma::mat fkCoordsRetractedTop, fkCoordsRetractedBot;
@@ -91,6 +92,7 @@ public:
     double getFkThickness(){ return fkThickness;}
     double getFk(){return fk;}
     arma::mat& getFlosse(){return flosse;}
+    arma::mat& getFlosseCut(){return flosseCut;}
     arma::mat& getUpperBaseCoords(){return upperBaseCoords;}
     arma::mat& getLowerBaseCoords(){return lowerBaseCoords;}
 

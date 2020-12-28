@@ -62,6 +62,7 @@ public:
 
 signals:
     void activated(bool recursively);
+    void plotLater();
     void changed();
 
 public slots:

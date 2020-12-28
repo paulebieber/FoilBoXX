@@ -17,6 +17,8 @@ class OptimizationThread: public QThread {
     std::vector<BernsteinShapeInterface*> shapes;
     std::vector<PolarGoal*> polarGoals;
     std::vector<Polar*> polars;
+    std::vector<FoilMode*> modes;
+
     AirfoilInterface* airfoil;
     const double fitness(const dlib::matrix<double>& coefs);
 

@@ -224,41 +224,46 @@ double interpolate(const arma::mat& array, const double x, const bool der, const
 
 arma::mat coordsFromX(const arma::mat& coords,const double x,const bool upTo,const bool includesX,const bool reversed, double border){
 
-    int index;
-    for (index = 0; index < coords.n_rows; ++index) {
-        if (coords(index+1,0)>=x){break;}
-    }
-
     arma::mat array;
-    if (upTo){array = coords.head_rows(index+1);}
-    else {array =  coords.tail_rows(coords.n_rows - (index+1));}
+    if(x > coords(coords.n_rows-1,0)){
+       array = coords;
+    }else{
 
-    // Find interpolated Value at x
-    if (includesX){
-        //SplineFunction spline(coords.col(0),coords.col(1));
-        arma::mat inter{x,interpolate(coords,x)};
+        int index;
+        for (index = 0; index < coords.n_rows-1; ++index) {
+            if (coords(index+1,0)>=x){break;}
+        }
 
-        arma::mat array2;
-        if (upTo){
-            // Check if interpolated Point is to close to next regular one.
-            if (x-array(array.n_rows-1,0) > border){
-                array2 = arma::mat(array.n_rows+1,2);
-            } else{
-                array2 = array;
+        if (upTo){array = coords.head_rows(index+1);}
+        else {array =  coords.tail_rows(coords.n_rows - (index+1));}
+
+        // Find interpolated Value at x
+        if (includesX){
+            //SplineFunction spline(coords.col(0),coords.col(1));
+            arma::mat inter{x,interpolate(coords,x)};
+
+            arma::mat array2;
+            if (upTo){
+                // Check if interpolated Point is to close to next regular one.
+                if (x-array(array.n_rows-1,0) > border){
+                    array2 = arma::mat(array.n_rows+1,2);
+                } else{
+                    array2 = array;
+                }
+                array2.head_rows(array.n_rows)=array;
+                array2.row(array2.n_rows-1) = inter;
             }
-            array2.head_rows(array.n_rows)=array;
-            array2.row(array2.n_rows-1) = inter;
-        }
-        else {
-            if (array(0,0) - x > border){
-                array2 = arma::mat(array.n_rows+1,2);
-            } else{
-                array2 = array;
+            else {
+                if (array(0,0) - x > border){
+                    array2 = arma::mat(array.n_rows+1,2);
+                } else{
+                    array2 = array;
+                }
+                array2.tail_rows(array.n_rows) = array;
+                array2.row(0) = inter;
             }
-            array2.tail_rows(array.n_rows) = array;
-            array2.row(0) = inter;
+            array = array2;
         }
-        array = array2;
     }
 
     if (reversed){

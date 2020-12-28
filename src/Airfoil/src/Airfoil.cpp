@@ -200,14 +200,23 @@ void Airfoil::baseCoords() {
     //Cutting Flosse at start of flap:
     //Loop for reversing order of coords and removing redundant 0,0-Point (int i = 1).
     arma::mat upperBaseCoordsRev = upperBaseCoords.submat(1,0,upperBaseCoords.n_rows-1,1);
+    arma::mat upperBaseCoordsRevCut = upperBaseCoords.submat(1,0,upperBaseCoords.n_rows-1,1);
     upperBaseCoordsRev = coordsFromX(upperBaseCoordsRev,upperFlapPt(0)-0.01,true,true);
+    if(fk){upperBaseCoordsRevCut = coordsFromX(upperBaseCoordsRevCut,1.0,true,true);}
     arma::mat tempInverse = upperBaseCoordsRev;
+    arma::mat tempInverseCut = upperBaseCoordsRevCut;
 
     for (int i = 0; i < tempInverse.n_rows; ++i) {
         upperBaseCoordsRev.row(tempInverse.n_rows - 1 - i) = tempInverse.row(i);
     }
+    for (int i = 0; i < tempInverseCut.n_rows; ++i) {
+        upperBaseCoordsRevCut.row(tempInverseCut.n_rows - 1 - i) = tempInverseCut.row(i);
+    }
 
     flosse = arma::join_cols(upperBaseCoordsRev, coordsFromX(lowerBaseCoords,lowerFlapPt(0)-0.01,true,true));
+
+    //Cut at 1 for correct thickness calc in Xfoil (just thickness calc)
+    flosseCut = arma::join_cols(upperBaseCoordsRevCut, coordsFromX(lowerBaseCoords,1.0,true,true));
 
     // Creation of the Flap with Flapnose, depending on calculated flapPivot
     //Calculating Radii of flap nose for lower and upper noseside
