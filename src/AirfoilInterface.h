@@ -12,7 +12,7 @@
 #include "HierarchyElement.h"
 #include "ui_airfoilWidget.h"
 #include "BernsteinShapeInterface.h"
-#include "FoilPlot.h"
+#include "XfoilSession.h"
 
 class AirfoilInterface: public HierarchyElement, public Airfoil{
 
@@ -31,7 +31,6 @@ private: foilType type;
     void setupInterface();
     void setInterfaceValues();
     Ui_airfoilWidget ui;
-    FoilPlot* foilPlot;
 
     //Plotting
     std::vector<QColor> colors = std::vector<QColor>{Qt::blue,Qt::red,Qt::green,Qt::cyan,Qt::darkYellow,Qt::darkRed,Qt::darkGreen};
@@ -39,11 +38,18 @@ private: foilType type;
     void onActivation(bool active, bool recursively);
     void onVisible(bool active);
 
-    void changedBaseCoords();
+    //For Thickness
+    XfoilSession thicknessXfoil;
+    double thickness;
+
+    void changedBaseCoords(bool nChanged);
     bool hasFile;
+    bool flapRelChanged;
+    void setTurbOn(bool on, bool recalc);
+    void setFkOn(bool on, bool recalc);
 
 public:
-    AirfoilInterface(QTreeWidget* tree, QString name, FoilPlot* foilPlot);
+    AirfoilInterface(QTreeWidget* tree, QString name);
     ~AirfoilInterface();
 
     QFile& getFile(){return file;}
@@ -54,18 +60,27 @@ public:
     void setName(QString string);
     QString getName(){return name;}
     bool getHasFile(){return hasFile;}
-    void setFoilType(foilType type){this->type = type;foilPlot->setPermanentInvisible(type==coords ? true : false);}
+    double getThickness(){return thickness;};
+    void setFoilType(foilType type){this->type = type; emit visibleChanged(type==coords ? false : true);}
     foilType getFoilType(){return type;}
+    void setAttribute(Airfoil::attributes att,double value, bool recalc){Airfoil::setAttribute(att,value,recalc);
+                                                                if(!recalc){emit reInterface();}}
 
     QColor* getColor(){
         return &colors[nCol++];
     };
 
 public slots:
-    void setThickness(double thickness);
+    void changeFlapText();
 
 signals:
     void changed();
     void activated(bool recursively);
+    void visibleChanged(bool visible);
+    void replot();
+    void reInterface();
+    void activeChanged(bool active);
     void calcAllPolars();
+    void optimizePolars();
 };
+ 

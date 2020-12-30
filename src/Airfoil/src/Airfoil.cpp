@@ -10,7 +10,7 @@
 Airfoil::Airfoil():
     teThickness(0.005),flapRelY(0.5),flapByRel(true),flapPivot({0.8,0.0}),
     noseY(0.0),fk(false),fkChordfactor(1.14), turbOn(false), turbBotPt({1.0,0}),turbTopPt({1.0,0}),
-    yPlus(0.0),yMinus(0.0){
+    yPlus(0.0),yMinus(0.0),changedN(false){
 
     setClassShapes();
     baseCoords();
@@ -39,18 +39,18 @@ void Airfoil::changeShapeSpacings(){
 
 void Airfoil::setClassShapes(){
 
-    double noseEnd = 0.05;
-    double nNose = 35;
+    double noseEnd = 0.03;
+    double nNose = 15;
 
     double delta = 0.03;
     double x1 = flapPivot(0);
-    double nNoseTo1 = 50;
+    double nNoseTo1 = 35;
     double x2 = flapPivot(0);
-    double n1To2 = 25;
-    double nToEnd = 30;
-    double nFk = 15;
+    double n1To2 = 20;
+    double nToEnd = 20;
+    double nFk = 10;
 
-    arma::vec spacingNose = pow(arma::linspace(0, 0.5, nNose),2)*noseEnd/pow(0.5,2);
+    arma::vec spacingNose = pow(arma::linspace(0, 0.5, nNose),3)*noseEnd/pow(0.5,3);
 
     arma::vec spacingNoseTo1 = arma::linspace(noseEnd, x1-delta, nNoseTo1);
     spacingNoseTo1 = spacingNoseTo1.subvec(1,spacingNoseTo1.size()-1);
@@ -103,6 +103,7 @@ void Airfoil::setClassShapes(){
     lowerClassCoords.col(1) = -0.15*pow(spacingLower, 0.5) % pow(1 - spacingLower, 1);
 
     changeShapeSpacings();
+    changedN = true;
 }
 
 void Airfoil::baseCoords() {
@@ -153,11 +154,11 @@ void Airfoil::baseCoords() {
         double upperDist = distanceBetweenPoints(flapPivot,upperEndPt);
         double upperFac = flapPivot(0)+sqrt(pow(upperDist,2)-pow(flapPivot(1)-upperBaseCoords(upperBaseCoords.n_rows-1,1),2));
         upperBaseCoords.col(0)*=upperFac;
-        upperFlapPtDesign = closestPointToPoint(upperBaseCoords,flapPivot);
+        upperFlapPtDesign = closestPointToPoint(upperBaseCoords,flapPivot,flapPivot(0)-0.4,2.0);
         etaDesignUpper = atan2(teThickness/2-flapPivot(1),1-flapPivot(0)) - atan2(upperBaseCoords(upperBaseCoords.n_rows-1,1)-flapPivot(1),upperBaseCoords(upperBaseCoords.n_rows-1,0)-flapPivot(0));
         tempFlapUpper = rotate(upperBaseCoords,flapPivot,etaDesignUpper);
     }else{
-        upperFlapPtDesign = closestPointToPoint(upperBaseCoords,flapPivot);
+        upperFlapPtDesign = closestPointToPoint(upperBaseCoords,flapPivot,flapPivot(0)-0.4,2.0);
         double upperFlapPtDesignDer = interpolate(upperBaseCoords,upperFlapPtDesign(0),true);
         etaDesignUpper = searchEtaDesign(upperBaseCoords,upperFlapPtDesign,upperFlapPtDesignDer,flapPivot,upperEndPt);
         arma::vec upperEndPtEta = rotate(upperEndPt,flapPivot,-etaDesignUpper);
@@ -184,7 +185,7 @@ void Airfoil::baseCoords() {
     double lowerFac = flapPivot(0)+sqrt(pow(lowerDist,2)-pow(flapPivot(1)-lowerBaseCoords(lowerBaseCoords.n_rows-1,1),2));
     lowerBaseCoords.col(0)*=lowerFac;
 
-    lowerFlapPtDesign = closestPointToPoint(lowerBaseCoords,flapPivot);
+    lowerFlapPtDesign = closestPointToPoint(lowerBaseCoords,flapPivot,flapPivot(0)-0.4,2.0);
     etaDesignLower = atan2(-teThickness/2-flapPivot(1),1-flapPivot(0)) - atan2(lowerBaseCoords(lowerBaseCoords.n_rows-1,1)-flapPivot(1),
             lowerBaseCoords(lowerBaseCoords.n_rows-1,0)-flapPivot(0));
     tempFlapLower = rotate(lowerBaseCoords,flapPivot,etaDesignLower);
@@ -199,14 +200,23 @@ void Airfoil::baseCoords() {
     //Cutting Flosse at start of flap:
     //Loop for reversing order of coords and removing redundant 0,0-Point (int i = 1).
     arma::mat upperBaseCoordsRev = upperBaseCoords.submat(1,0,upperBaseCoords.n_rows-1,1);
+    arma::mat upperBaseCoordsRevCut = upperBaseCoords.submat(1,0,upperBaseCoords.n_rows-1,1);
     upperBaseCoordsRev = coordsFromX(upperBaseCoordsRev,upperFlapPt(0)-0.01,true,true);
+    if(fk){upperBaseCoordsRevCut = coordsFromX(upperBaseCoordsRevCut,1.0,true,true);}
     arma::mat tempInverse = upperBaseCoordsRev;
+    arma::mat tempInverseCut = upperBaseCoordsRevCut;
 
     for (int i = 0; i < tempInverse.n_rows; ++i) {
         upperBaseCoordsRev.row(tempInverse.n_rows - 1 - i) = tempInverse.row(i);
     }
+    for (int i = 0; i < tempInverseCut.n_rows; ++i) {
+        upperBaseCoordsRevCut.row(tempInverseCut.n_rows - 1 - i) = tempInverseCut.row(i);
+    }
 
     flosse = arma::join_cols(upperBaseCoordsRev, coordsFromX(lowerBaseCoords,lowerFlapPt(0)-0.01,true,true));
+
+    //Cut at 1 for correct thickness calc in Xfoil (just thickness calc)
+    flosseCut = arma::join_cols(upperBaseCoordsRevCut, coordsFromX(lowerBaseCoords,1.0,true,true));
 
     // Creation of the Flap with Flapnose, depending on calculated flapPivot
     //Calculating Radii of flap nose for lower and upper noseside
@@ -288,6 +298,7 @@ void Airfoil::baseCoords() {
         fkCoordsTop = coordsFromX(upperBaseCoords,upperFlapPtDesignExtracted(0)-0.01,true,true);
         fkCoordsTop = coordsFromX(fkCoordsTop,upperFlapPtDesign(0)+0.005,false,true);
 
+        fkThickness = r_top+r_bot;
         fkCoordsBot = upperBaseCoords;
         for (int i = 1; i < fkCoordsBot.n_rows-2; ++i) {
 
@@ -295,7 +306,7 @@ void Airfoil::baseCoords() {
             double norm = sqrt(pow(deltaOrtho(0),2)+pow(deltaOrtho(1),2));
             deltaOrtho /= norm;
             arma::vec camb = upperBaseCoords.row(i).t();
-            fkCoordsBot.row(i) = (camb-(r_top+r_bot)*deltaOrtho).t();
+            fkCoordsBot.row(i) = (camb-fkThickness*deltaOrtho).t();
         }
 
         fkCoordsBot = coordsFromX(fkCoordsBot,lowerFlapPtDesignExtracted(0)-0.0225,true,true);
@@ -306,7 +317,8 @@ void Airfoil::baseCoords() {
         fkCoordsBotRetracted = arma::mat{0.0};
     }
 
-    changedBaseCoords();
+    changedBaseCoords(changedN);
+    changedN = false;
 }
 
 std::tuple<std::vector<arma::mat>,arma::vec, arma::vec> Airfoil::getModeCoords(bool fkExtracted, double eta){

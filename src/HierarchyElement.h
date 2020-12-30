@@ -16,7 +16,6 @@ Q_OBJECT
     std::vector<HierarchyElement*> children{};
 
     bool visible;
-    bool active;
 
 public:
     HierarchyElement(QTreeWidget* master);
@@ -30,6 +29,8 @@ public:
     QWidget* getWidget(){return &widget;}
     HierarchyElement* getParent(){return parent;}
     QTreeWidgetItem* getTreeItem(){return treeItem;}
+
+    bool active;
 
 protected:
     QTreeWidgetItem* treeItem = new QTreeWidgetItem();

@@ -1,4 +1,4 @@
-right Axis (only absolute Scale same, but window can be bigger)
+restructure Windows -> New hidable Window for each HierarchyItem?
 
 weird curve wobbling -> output showed that discretization is weird! Resolution arma::vecs or interpolation?
 
@@ -12,6 +12,4 @@ Good Tools for comparing to
 
 Nice Blueprints?
 
-multiple baseCoords calls on start? -> only once needed
-
-caclulating in own Processes
+track down if multiple baseCoords calls occure, even if not needed

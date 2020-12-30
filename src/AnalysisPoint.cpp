@@ -10,11 +10,15 @@ AnalysisPoint::AnalysisPoint(FoilMode* mode, QwtCustomPlot* pressurePlot):Analys
 
     calcMode = clCalc;
 
-    for(QwtPlotCurve* cu: std::vector<QwtPlotCurve*>{curve,viscCurve}){
-        cu->attach(pressurePlot);
-        cu->setYAxis(QwtPlot::yRight);
-        cu->setRenderHint(QwtPlotCurve::RenderAntialiased,true);
+    if (pressurePlot != NULL){
+        for(QwtPlotCurve* cu: std::vector<QwtPlotCurve*>{curve,viscCurve}){
+            cu->attach(pressurePlot);
+            cu->setYAxis(QwtPlot::yRight);
+            cu->setRenderHint(QwtPlotCurve::RenderAntialiased,true);
+        }
     }
+
+    connect(this,&AnalysisPoint::changed,this,&AnalysisPoint::plot,Qt::QueuedConnection);
 
     setItemText();
     setupInterface();
@@ -22,8 +26,10 @@ AnalysisPoint::AnalysisPoint(FoilMode* mode, QwtCustomPlot* pressurePlot):Analys
 
 AnalysisPoint::~AnalysisPoint() {
 
-    curve->detach();
-    viscCurve->detach();
+    if (pressurePlot != NULL){
+        curve->detach();
+        viscCurve->detach();
+    }
 }
 
 QDataStream& operator<<(QDataStream& out, const AnalysisPoint& analysis){
@@ -68,23 +74,23 @@ void AnalysisPoint::calc(){
         ui.doubleSpinBox_alphaDesign->setStyleSheet("color: darkGray");
     }
     
-    emit thickness(xfoilThickness());
-    setItemText();
-    plot();
-    setItemText();
+    emit changed();
 }
 
 void AnalysisPoint::plot(){
 
-    curve->setRawSamples(xs.memptr(),pressure.memptr(),
-        pressure.n_rows);
+    if (pressurePlot != NULL){
+        setItemText();
+        curve->setSamples(xs.memptr(),pressure.memptr(),
+            pressure.n_rows);
 
-    if(viscous){
-        viscCurve->setRawSamples(xs.memptr(),pressureVisc.memptr(),
-            pressureVisc.n_rows);
+        if(viscous){
+            viscCurve->setSamples(xs.memptr(),pressureVisc.memptr(),
+                pressureVisc.n_rows);
 
+        }
+        pressurePlot->replot();
     }
-    pressurePlot->replot();
 }
 
 void AnalysisPoint::onActivation(bool active, bool recursively){

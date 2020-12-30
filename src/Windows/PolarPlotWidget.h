@@ -12,7 +12,7 @@ class PolarPlotWidget: public QWidget{
 Q_OBJECT
 
     //QwtLinearScaleEngine* scaleEngineCLCD = new QwtLinearScaleEngine();
-    QwtCustomPlot* cLCD = new QwtCustomPlot(NULL,QString("cD *10e3"),QString("cL"),0);
+    QwtCustomPlot* cLCD = new QwtCustomPlot(NULL,QString("cD"),QString("cL"),0);
     QwtCustomPlot* cLAlpha = new QwtCustomPlot(NULL,QString("alpha"),QString("cL/cM"),0);
     QwtCustomPlot* cLXTr = new QwtCustomPlot(NULL,QString("xTrans"),QString("cL"),0.0);
 

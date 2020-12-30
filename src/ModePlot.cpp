@@ -1,5 +1,6 @@
 
 #include "ModePlot.h"
+#include <qnamespace.h>
 
 ModePlot::ModePlot(QwtCustomPlot* plot):plot(plot){
 
@@ -16,7 +17,6 @@ ModePlot::~ModePlot(){
 
     for(QwtPlotCurve* curve: aeroCurves){curve->detach();}
     for(QwtPlotCurve* curve: secondaryCurves){curve->detach();}
-    for(QwtPlotCurve* curve: primaryCurves){curve->detach();}
     turbTopCurve->detach(); 
     turbBotCurve->detach(); 
     //delete aeroSymbol; delete turbSymbol;
@@ -25,6 +25,9 @@ ModePlot::~ModePlot(){
 void ModePlot::connectToMode(FoilMode* mode){
 
     this->mode = mode;
+
+    disconnect(modeConnection);
+    modeConnection = connect(mode,&FoilMode::changed,this,&ModePlot::plotCoords,Qt::QueuedConnection);
 
     aero = std::vector<arma::mat*>{&mode->coordsAero};
     secondary = std::vector<arma::mat*>{&mode->fkTop,&mode->fkBot,&mode->flapTop,&mode->flapBot};
@@ -48,13 +51,6 @@ void ModePlot::connectToMode(FoilMode* mode){
         aeroCurves[i]->setSymbol(aeroSymbol);
     }
 
-    for(int i=0; i<primary.size();i++){
-        primaryCurves.push_back(new QwtPlotCurve());
-        primaryCurves[i]->setYAxis(QwtPlot::yRight);
-        primaryCurves[i]->attach(plot);
-        primaryCurves[i]->setRenderHint(QwtPlotCurve::RenderAntialiased,true);
-    }
-
     turbTopCurve = new QwtPlotCurve();
     turbBotCurve = new QwtPlotCurve();
 
@@ -69,32 +65,27 @@ void ModePlot::connectToMode(FoilMode* mode){
 
 void ModePlot::plotCoords(){
 
-    for(int i=0; i<primary.size(); i++){
-        primaryCurves[i]->setPen(primaryPen);
-        primaryCurves[i]->setRawSamples(primary[i]->colptr(0),primary[i]->colptr(1),primary[i]->n_rows);
-    }
-
     for(int i=0; i<aero.size(); i++){
-        aeroCurves[i]->setRawSamples(aero[i]->colptr(0),aero[i]->colptr(1),aero[i]->n_rows);
+        aeroCurves[i]->setSamples(aero[i]->colptr(0),aero[i]->colptr(1),aero[i]->n_rows);
         aeroCurves[i]->setPen(aeroPen);
     }
 
-    if(mode->turbTop(0) < mode->coordsAero(0,0)){
+    //if(mode->turbTop(0) < mode->coordsAero(0,0)){
         double* y = mode->turbTop.memptr();y++;
-        turbTopCurve->setRawSamples(mode->turbTop.memptr(),y,1);
-    }
+        turbTopCurve->setSamples(mode->turbTop.memptr(),y,1);
+    //}
 
-    if(mode->turbBot(0) < mode->coordsAero(mode->coordsAero.n_rows-1,0)){
-        double* y = mode->turbBot.memptr();y++;
-        turbBotCurve->setRawSamples(mode->turbBot.memptr(),y,1);
-    }
+    //if(mode->turbBot(0) < mode->coordsAero(mode->coordsAero.n_rows-1,0)){
+        y = mode->turbBot.memptr();y++;
+        turbBotCurve->setSamples(mode->turbBot.memptr(),y,1);
+    //}
 
     if(mode->getModeType() == FoilMode::full){
 
         secondaryPen.setColor(mode->getColor());
         for(int i=0; i<secondary.size(); i++){
             secondaryCurves[i]->setPen(secondaryPen);
-            secondaryCurves[i]->setRawSamples(secondary[i]->colptr(0),secondary[i]->colptr(1),secondary[i]->n_rows);
+            secondaryCurves[i]->setSamples(secondary[i]->colptr(0),secondary[i]->colptr(1),secondary[i]->n_rows);
         }
     }
 
@@ -104,7 +95,7 @@ void ModePlot::plotCoords(){
 void ModePlot::setActive(bool active){
 
     double width = active ? 3.0 : 2.0;
-    for(QPen* pen: std::list<QPen*>{&secondaryPen,&primaryPen}){
+    for(QPen* pen: std::list<QPen*>{&secondaryPen}){
         pen->setWidth(width);
     }
     if(mode->getModeType() == FoilMode::full){aeroPen = QPen(Qt::transparent);}
@@ -131,10 +122,6 @@ void ModePlot::setVisible(bool visible){
 
     for(QwtPlotCurve* curve: std::vector<QwtPlotCurve*>{turbTopCurve,turbBotCurve}){
         curve->setVisible(visible);
-    }
-
-    for(int i=0; i<primary.size();i++){
-        primaryCurves[i]->setVisible(visible);
     }
 
     plot->replot();

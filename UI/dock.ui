@@ -186,8 +186,8 @@ background-color: rgb(255, 255, 255);</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>294</width>
-             <height>465</height>
+             <width>298</width>
+             <height>466</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="gridLayout_2">
@@ -308,7 +308,7 @@ background-color: rgb(255, 255, 255);</string>
      <x>0</x>
      <y>0</y>
      <width>1684</width>
-     <height>31</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFoilBoXX">
@@ -359,9 +359,20 @@ background-color: rgb(255, 255, 255);</string>
     <addaction name="actionsave_Coords"/>
     <addaction name="actionsave_flapCoords"/>
    </widget>
+   <widget class="QMenu" name="menuPolar">
+    <property name="title">
+     <string>Polar</string>
+    </property>
+    <addaction name="actiondelete_PolarGoal"/>
+    <addaction name="actionadd_PolarGoal"/>
+    <addaction name="actionadd_PolarGoalForCLAlpha"/>
+    <addaction name="actionadd_PolarGoalForXTrTop"/>
+    <addaction name="actionadd_PolarGoalForXTrBot"/>
+   </widget>
    <addaction name="menuFoilBoXX"/>
    <addaction name="menuAirfoil"/>
    <addaction name="menuFoilMode"/>
+   <addaction name="menuPolar"/>
   </widget>
   <action name="actionAbout">
    <property name="text">
@@ -562,6 +573,31 @@ background-color: rgb(255, 255, 255);</string>
   <action name="actionsave_flapCoords">
    <property name="text">
     <string>save flapCoords</string>
+   </property>
+  </action>
+  <action name="actionadd_PolarGoal">
+   <property name="text">
+    <string>add PolarGoal for cD</string>
+   </property>
+  </action>
+  <action name="actiondelete_PolarGoal">
+   <property name="text">
+    <string>delete PolarGoal</string>
+   </property>
+  </action>
+  <action name="actionadd_PolarGoalForCLAlpha">
+   <property name="text">
+    <string>add PolarGoal for cLAlpha</string>
+   </property>
+  </action>
+  <action name="actionadd_PolarGoalForXTrTop">
+   <property name="text">
+    <string>add PolarGoal for XTrTop</string>
+   </property>
+  </action>
+  <action name="actionadd_PolarGoalForXTrBot">
+   <property name="text">
+    <string>add PolarGoal for XTrBot</string>
    </property>
   </action>
  </widget>

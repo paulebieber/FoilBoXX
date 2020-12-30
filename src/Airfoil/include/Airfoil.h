@@ -23,6 +23,7 @@ class Airfoil{
     arma::vec upperFlapPtDesignExtracted, lowerFlapPtDesignExtracted;
 
     arma::mat flosse;
+    arma::mat flosseCut;
     arma::mat fkCoordsTop, fkCoordsBot;
     arma::mat fkCoordsTopRetracted, fkCoordsBotRetracted;
     arma::mat fkCoordsRetractedTop, fkCoordsRetractedBot;
@@ -38,11 +39,14 @@ class Airfoil{
     void setBase();
     void changeShapeSpacings();
 
+    bool changedN;
+
 protected:
     std::vector<ShapeFunction*> shapes;
 
     arma::vec flapPivot;
     double fkChordfactor;
+    double fkThickness;
     double flapRelY;
     double etaDesignUpper;
     double etaDesignLower;
@@ -85,11 +89,13 @@ public:
     std::tuple<std::vector<arma::mat>,arma::vec,arma::vec> getModeCoords(bool fkExtracted, double eta);
     std::vector<double> getTurb() const {return std::vector<double>{turbTopPt(0),turbBotPt(0)};}
     double getFkChordfactor(){ return fkChordfactor;}
+    double getFkThickness(){ return fkThickness;}
     double getFk(){return fk;}
-    arma::mat getFlosse(){return flosse;}
-    arma::mat* getUpperBaseCoords(){return &upperBaseCoords;}
-    arma::mat* getLowerBaseCoords(){return &lowerBaseCoords;}
+    arma::mat& getFlosse(){return flosse;}
+    arma::mat& getFlosseCut(){return flosseCut;}
+    arma::mat& getUpperBaseCoords(){return upperBaseCoords;}
+    arma::mat& getLowerBaseCoords(){return lowerBaseCoords;}
 
-    void virtual changedBaseCoords(){};
+    void virtual changedBaseCoords(bool nChanged){};
 };
 

@@ -66,6 +66,10 @@ QwtCustomPlot::QwtCustomPlot(QWidget* widget, QString xString, QString yString, 
 
     //canvas()->setFocusPolicy(Qt::StrongFocus);
     //canvas()->setMouseTracking(true);
+    
+    //Gives place for longer axis lables and prevents pincing of coordinate space
+    axisWidget(QwtPlot::xBottom)->setMinBorderDist(20,20);
+    axisWidget(QwtPlot::yRight)->setMinBorderDist(20,20);
 }
 
 void QwtCustomPlot::fitCurve(QwtPlotCurve* curve){
@@ -144,6 +148,7 @@ bool QwtCustomPlot::eventFilter(QObject* obj, QEvent* event) {
         if(mouseEvent->button() == Qt::LeftButton){
             dragging = true;
             draggingCheckpoint = mouseEvent->pos();
+            if(dragging){emit startDrag(transform(mouseEvent->pos()));}
         }
     return true;
     
@@ -157,6 +162,7 @@ bool QwtCustomPlot::eventFilter(QObject* obj, QEvent* event) {
         }
         if(mouseEvent->button() == Qt::LeftButton){
             dragging = false;
+            emit dragFinished();
             return true;
         }
     }

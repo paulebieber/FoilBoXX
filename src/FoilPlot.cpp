@@ -1,36 +1,38 @@
 
 #include "FoilPlot.h"
+#include <qnamespace.h>
 
-FoilPlot::FoilPlot(QwtCustomPlot* plot):plot(plot),permanentInvisible(false){}
-
-FoilPlot::~FoilPlot(){
-
-    for(QwtPlotCurve* curve: baseCurves){curve->detach();}
-}
-
-void FoilPlot::connectToFoil(Airfoil* airfoil){
-
-    this->airfoil = airfoil;
-
-    baseCoords = std::vector<arma::mat*>{airfoil->getLowerBaseCoords(),airfoil->getUpperBaseCoords()};
+FoilPlot::FoilPlot(QwtCustomPlot* plot, AirfoilInterface* airfoil):plot(plot),permanentInvisible(false),airfoil(airfoil),
+    upperBaseCoords(airfoil->getUpperBaseCoords()),lowerBaseCoords(airfoil->getLowerBaseCoords()){
 
     plot->enableAxis(QwtPlot::yLeft,false);
     plot->enableAxis(QwtPlot::yRight,true);
 
-    for(int i=0; i<baseCoords.size();i++){
+    for(int i=0; i<baseCoords().size();i++){
         baseCurves.push_back(new QwtPlotCurve());
         baseCurves[i]->setYAxis(QwtPlot::yRight);
         baseCurves[i]->attach(plot);
         baseCurves[i]->setRenderHint(QwtPlotCurve::RenderAntialiased,true);
     }
 
+    connect(airfoil,&AirfoilInterface::visibleChanged,this,&FoilPlot::setVisible);
+    connect(airfoil,&AirfoilInterface::activeChanged,this,&FoilPlot::setActive);
+    connect(airfoil,&AirfoilInterface::replot,this,&FoilPlot::plotCoords,Qt::QueuedConnection);
+}
+
+FoilPlot::~FoilPlot(){
+
+    for(QwtPlotCurve* curve: baseCurves){
+        curve->detach();
+        delete curve;
+    }
 }
 
 void FoilPlot::plotCoords(){
 
-    for(int i=0; i<baseCoords.size(); i++){
+    for(int i=0; i<baseCoords().size(); i++){
         baseCurves[i]->setPen(basePen);
-        baseCurves[i]->setRawSamples(baseCoords[i]->colptr(0),baseCoords[i]->colptr(1),baseCoords[i]->n_rows);
+        baseCurves[i]->setRawSamples(baseCoords()[i]->colptr(0),baseCoords()[i]->colptr(1),baseCoords()[i]->n_rows);
     }
 
     plot->replot();
@@ -55,7 +57,7 @@ void FoilPlot::setPermanentInvisible(bool invisible){
 void FoilPlot::setVisible(bool visible){
 
     if(!permanentInvisible){
-        for(int i=0; i<baseCoords.size();i++){
+        for(int i=0; i<baseCoords().size();i++){
             baseCurves[i]->setVisible(visible);
         }
         plot->replot();

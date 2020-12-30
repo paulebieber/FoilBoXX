@@ -194,8 +194,9 @@ arma::mat rotate(const arma::mat& toRotate, const arma::vec& pt, const double& a
 
 double interpolate(const arma::mat& array, const double x, const bool der, const bool linear){
 
-    if(array(0,0) == x){return array(0,1);}
-    if(array(array.n_rows-1,0) == x){return array(array.n_rows-1,1);}
+    int n = array.n_rows;
+    if(array(array.n_rows-1,0) <= x){return array(n-1,1)+((x-array(n-1,0))/(array(n-1,0)-array(n-2,0)))*(array(n-1,1)-array(n-2,1));}
+    if(array(0,0) >= x){return array(0,1)+((x-array(0,0))/(array(1,0)-array(0,0)))*(array(1,1)-array(0,1));}
 
     for (int i = 1; i < array.n_rows; ++i) {
         if ((array(i,0) > x) && (i>0)){
@@ -223,41 +224,46 @@ double interpolate(const arma::mat& array, const double x, const bool der, const
 
 arma::mat coordsFromX(const arma::mat& coords,const double x,const bool upTo,const bool includesX,const bool reversed, double border){
 
-    int index;
-    for (index = 0; index < coords.n_rows; ++index) {
-        if (coords(index+1,0)>=x){break;}
-    }
-
     arma::mat array;
-    if (upTo){array = coords.head_rows(index+1);}
-    else {array =  coords.tail_rows(coords.n_rows - (index+1));}
+    if(x > coords(coords.n_rows-1,0)){
+       array = coords;
+    }else{
 
-    // Find interpolated Value at x
-    if (includesX){
-        //SplineFunction spline(coords.col(0),coords.col(1));
-        arma::mat inter{x,interpolate(coords,x)};
+        int index;
+        for (index = 0; index < coords.n_rows-1; ++index) {
+            if (coords(index+1,0)>=x){break;}
+        }
 
-        arma::mat array2;
-        if (upTo){
-            // Check if interpolated Point is to close to next regular one.
-            if (x-array(array.n_rows-1,0) > border){
-                array2 = arma::mat(array.n_rows+1,2);
-            } else{
-                array2 = array;
+        if (upTo){array = coords.head_rows(index+1);}
+        else {array =  coords.tail_rows(coords.n_rows - (index+1));}
+
+        // Find interpolated Value at x
+        if (includesX){
+            //SplineFunction spline(coords.col(0),coords.col(1));
+            arma::mat inter{x,interpolate(coords,x)};
+
+            arma::mat array2;
+            if (upTo){
+                // Check if interpolated Point is to close to next regular one.
+                if (x-array(array.n_rows-1,0) > border){
+                    array2 = arma::mat(array.n_rows+1,2);
+                } else{
+                    array2 = array;
+                }
+                array2.head_rows(array.n_rows)=array;
+                array2.row(array2.n_rows-1) = inter;
             }
-            array2.head_rows(array.n_rows)=array;
-            array2.row(array2.n_rows-1) = inter;
-        }
-        else {
-            if (array(0,0) - x > border){
-                array2 = arma::mat(array.n_rows+1,2);
-            } else{
-                array2 = array;
+            else {
+                if (array(0,0) - x > border){
+                    array2 = arma::mat(array.n_rows+1,2);
+                } else{
+                    array2 = array;
+                }
+                array2.tail_rows(array.n_rows) = array;
+                array2.row(0) = inter;
             }
-            array2.tail_rows(array.n_rows) = array;
-            array2.row(0) = inter;
+            array = array2;
         }
-        array = array2;
     }
 
     if (reversed){
@@ -273,11 +279,12 @@ double distanceBetweenPoints(const arma::vec& p1, const arma::vec& p2){
     return sqrt(pow(p1(0)-p2(0),2)+pow(p1(1)-p2(1),2));
 }
 
-arma::vec closestPointToPoint(const arma::mat& arrayCurve, const arma::vec& pt){
+arma::vec closestPointToPoint(const arma::mat& arrayCurve, const arma::vec& pt,
+        const double lowerBound, const double upperBound){
 
     dlib::matrix<double,0,1> start = {pt(0)};
-    dlib::matrix<double,0,1> lb = {pt(0)-0.4};
-    dlib::matrix<double,0,1> ub = {1.0};
+    dlib::matrix<double,0,1> lb = {lowerBound};
+    dlib::matrix<double,0,1> ub = {upperBound};
 
     optimizationData data(arrayCurve,pt,false);
     calcDistanceFromPointToSpline ptp(data);

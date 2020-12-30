@@ -17,7 +17,8 @@ protected:
 
     double turbTop;
     double turbBot;
-    enum calcTypes{alphaCalc, clCalc};
+public: enum calcTypes{alphaCalc, clCalc};
+protected: 
     calcTypes calcMode;
     double re, nCrit;
     bool reCa1;
