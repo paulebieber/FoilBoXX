@@ -58,7 +58,10 @@ QDataStream& operator<<(QDataStream& out, const PolarGoal& goal){
 
 QDataStream& operator>>(QDataStream& in, PolarGoal& goal){
 
-    if(goal.fileVersion == QString("0.6.2")){
+    if      (goal.fileVersion != QString("0.6.1") &&
+            goal.fileVersion != QString("0.6.0") &&
+            goal.fileVersion != QString("0.5.0") && 
+            goal.fileVersion != QString("0.5.1")){
         in >> goal.bias;
     }
     in >> *goal.dragCurve;
@@ -111,7 +114,12 @@ void PolarGoal::calcDifferenceToPolar(){
 
                 arma::vec ptOnPolar;
                 if(mode == cLAlpha || mode == XTrTop || mode == XTrBot){
-                    double ptcL = interpolate(cLCD,pts(j,0));
+                    double ptcL;
+                    if(cLCD(cLCD.n_rows-1,0)<pts(j,0) || cLCD(0,0)>pts(j,0)){
+                        ptcL = pts(j,1);
+                    }else{
+                        ptcL = interpolate(cLCD,pts(j,0));
+                    }
                     ptOnPolar = arma::vec{pts(j,0),ptcL};
                     area += diff*distanceBetweenPoints(ptOnPolar,pts.row(j).t());
                 }else{

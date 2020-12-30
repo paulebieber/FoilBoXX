@@ -393,7 +393,7 @@ void Interface::newFoilMode(AirfoilInterface* airfoil, bool fromStart, QTextStre
     if(!(airfoil->getFoilType() == AirfoilInterface::coords && in == nullptr)){
 
         ModePlot* modePlot = new ModePlot(foilPlotWidget);
-        FoilMode* mode = (in == nullptr) ? new FoilMode(airfoil,modePlot) : new FoilMode(airfoil,*in,modePlot);
+        FoilMode* mode = (in == nullptr) ? new FoilMode(airfoil,modePlot,fileVersion) : new FoilMode(airfoil,*in,modePlot);
         modes.push_back(mode);
 
         layout_mode->addWidget(mode->getWidget());

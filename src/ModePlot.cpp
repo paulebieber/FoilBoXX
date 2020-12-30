@@ -70,15 +70,15 @@ void ModePlot::plotCoords(){
         aeroCurves[i]->setPen(aeroPen);
     }
 
-    if(mode->turbTop(0) < mode->coordsAero(0,0)){
+    //if(mode->turbTop(0) < mode->coordsAero(0,0)){
         double* y = mode->turbTop.memptr();y++;
         turbTopCurve->setSamples(mode->turbTop.memptr(),y,1);
-    }
+    //}
 
-    if(mode->turbBot(0) < mode->coordsAero(mode->coordsAero.n_rows-1,0)){
-        double* y = mode->turbBot.memptr();y++;
+    //if(mode->turbBot(0) < mode->coordsAero(mode->coordsAero.n_rows-1,0)){
+        y = mode->turbBot.memptr();y++;
         turbBotCurve->setSamples(mode->turbBot.memptr(),y,1);
-    }
+    //}
 
     if(mode->getModeType() == FoilMode::full){
 

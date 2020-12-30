@@ -3,7 +3,8 @@
 #include "SplineFunctions.h"
 #include <qnamespace.h>
 
-FoilMode::FoilMode(AirfoilInterface* airfoil, ModePlot* modePlot):HierarchyElement(airfoil),airfoil(airfoil),modeType(full),modePlot(modePlot){
+FoilMode::FoilMode(AirfoilInterface* airfoil, ModePlot* modePlot, QString fileVersion):HierarchyElement(airfoil),airfoil(airfoil),
+    modeType(full),modePlot(modePlot),fileVersion(fileVersion){
 
     connectToFoil(airfoil);
     modePlot->connectToMode(this);
@@ -42,6 +43,20 @@ FoilMode::FoilMode(AirfoilInterface* airfoil, QTextStream& in, ModePlot* modePlo
         }
         i++;
     }
+
+    splitCoords();
+    setTurbsFromAero();
+    
+    connectToFoil(airfoil);
+    airfoil->setFoilType(AirfoilInterface::coords);
+    modePlot->connectToMode(this);
+    setupInterface();
+
+    calcCoords();
+}
+
+void FoilMode::splitCoords(){
+
     //Calc upper and lower Side from it
     arma::mat reversed = coordsAero;
     for (int i = 0; i < reversed.n_rows; ++i) {
@@ -51,15 +66,6 @@ FoilMode::FoilMode(AirfoilInterface* airfoil, QTextStream& in, ModePlot* modePlo
     double noseX = coordsAero.col(0).index_min();
     upperSide = reversed.tail_rows(noseX);
     lowerSide = coordsAero.tail_rows(coordsAero.n_rows-noseX);
-
-    setTurbsFromAero();
-    
-    connectToFoil(airfoil);
-    airfoil->setFoilType(AirfoilInterface::coords);
-    modePlot->connectToMode(this);
-    setupInterface();
-
-    calcCoords();
 }
 
 FoilMode::~FoilMode(){
@@ -75,17 +81,41 @@ void FoilMode::setTurbsFromAero(){
 QDataStream& operator<<(QDataStream& out, const FoilMode& mode){
 
     out << QString("FoilMode");
+    out << mode.smoothUpper << mode.smoothLower;
+    out << mode.turbulent;
     out << mode.eta << mode.fk;
     return out;
 }
 
 QDataStream& operator>>(QDataStream& in, FoilMode& mode){
 
-    in >> mode.eta >> mode.fk;
+    if(mode.fileVersion != QString("0.6.1") &&
+            mode.fileVersion != QString("0.6.2") &&
+            mode.fileVersion != QString("0.6.0") &&
+            mode.fileVersion != QString("0.5.0") && 
+            mode.fileVersion != QString("0.5.1")){
+
+        in >> mode.smoothUpper >> mode.smoothLower;
+        mode.ui.checkBox_smoothUpper->setChecked(mode.smoothUpper);
+        mode.ui.checkBox_smoothLower->setChecked(mode.smoothLower);
+        in >> mode.turbulent;
+        mode.ui.checkBox_turbulent->setChecked(mode.turbulent);
+    }
+
+    bool fk;
+    in >> mode.eta >> fk;
+    mode.setFK(fk,false);
     mode.setItemText();
     mode.setInterfaceValues();
     mode.calcCoords();
     return in;
+}
+
+void FoilMode::setTurbulent(bool turb, bool recalc){
+    turbulent = turb;
+    if(recalc){
+        calcCoords();
+    }
 }
 
 void FoilMode::calcCoords(){
@@ -112,6 +142,14 @@ void FoilMode::calcCoords(){
         turbBot = std::get<2>(all);
 
         coordsAero = coords[0]; fkTop = coords[1], fkBot = coords[2], flapTop = coords[3], flapBot = coords[4];
+
+        if(turbulent){
+            splitCoords();
+            turbTop(1) = interpolate(upperSide,0.03);
+            turbTop(0)=0.03;
+            turbBot(1) = interpolate(lowerSide,0.03);
+            turbBot(0)=0.03;
+        }
 
     }else{
         //Calc Turbulator y
@@ -203,6 +241,7 @@ void FoilMode::setupInterface(){
         connect(ui.checkBox_smoothLower,&QCheckBox::clicked,[this](bool status){smoothLower=status;calcCoords();});
         connect(ui.doubleSpinBox_eta,QOverload<double>::of(&QDoubleSpinBox::valueChanged),[this](double eta){setEta(eta,true);});
         connect(ui.checkBox_fk,&QCheckBox::stateChanged,[this](int status){setFK(status,true);});
+        connect(ui.checkBox_turbulent,&QCheckBox::clicked,[this](bool status){setTurbulent(status,true);});
     }
     else{
         uiCoords.setupUi(&widget);
@@ -221,15 +260,18 @@ void FoilMode::setupInterface(){
 
 void FoilMode::setInterfaceValues(){
 
-    std::list<QObject*> toChange({ui.checkBox_fk,ui.doubleSpinBox_eta});
-    for(QObject* obj : toChange){obj->blockSignals(true);}
 
     if(modeType == full){
+        std::list<QObject*> toChange({ui.checkBox_fk,ui.doubleSpinBox_eta});
+        for(QObject* obj : toChange){obj->blockSignals(true);}
         ui.doubleSpinBox_eta->setValue(eta);
         ui.checkBox_fk->setChecked(fk);
+        for(QObject* obj : toChange){obj->blockSignals(false);}
     }else{
+        std::list<QObject*> toChange({uiCoords.doubleSpinBox_turbBot,uiCoords.doubleSpinBox_turbTop});
+        for(QObject* obj : toChange){obj->blockSignals(true);}
         uiCoords.doubleSpinBox_turbTop->setValue(turbTop(0));
         uiCoords.doubleSpinBox_turbBot->setValue(turbBot(0));
+        for(QObject* obj : toChange){obj->blockSignals(false);}
     }
-    for(QObject* obj : toChange){obj->blockSignals(false);}
 }

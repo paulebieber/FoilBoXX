@@ -45,6 +45,8 @@ private: foilType type;
     void changedBaseCoords(bool nChanged);
     bool hasFile;
     bool flapRelChanged;
+    void setTurbOn(bool on, bool recalc);
+    void setFkOn(bool on, bool recalc);
 
 public:
     AirfoilInterface(QTreeWidget* tree, QString name);
@@ -59,7 +61,7 @@ public:
     QString getName(){return name;}
     bool getHasFile(){return hasFile;}
     double getThickness(){return thickness;};
-    void setFoilType(foilType type){this->type = type; emit visibleChanged(type==coords ? true : false);}
+    void setFoilType(foilType type){this->type = type; emit visibleChanged(type==coords ? false : true);}
     foilType getFoilType(){return type;}
     void setAttribute(Airfoil::attributes att,double value, bool recalc){Airfoil::setAttribute(att,value,recalc);
                                                                 if(!recalc){emit reInterface();}}

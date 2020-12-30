@@ -13,9 +13,11 @@ BernsteinShapeInterface::BernsteinShapeInterface(HierarchyElement* airfoil, QwtC
     shapeCurve->attach(foilPlot);
     shapeCurve->setYAxis(QwtPlot::yRight);
     pen.setStyle(Qt::DashDotLine);
+    shapeCurve->setPen(pen);
 
     connect(foilPlot,&QwtCustomPlot::dragged,this,[=](QPointF pt, QPointF delta){modify(pt,delta,false);},Qt::QueuedConnection);
     connect(pressurePlot,&QwtCustomPlot::dragged,this,[=](QPointF pt, QPointF delta){modify(pt,delta,true);},Qt::QueuedConnection);
+    connect(this,&BernsteinShapeInterface::changed,this,&BernsteinShapeInterface::plot,Qt::QueuedConnection);
 
     setItemText();
     setBold(true);
@@ -105,13 +107,12 @@ void BernsteinShapeInterface::changeNCoefs(int n){
 
 void BernsteinShapeInterface::setPlot(){
 
-    calcVisualizationShape();
-
     for(QwtPlotCurve* curve: bernsteinCurves){
         curve->detach();
+        delete curve;
     }
 
-    bernsteinCurves = std::vector<QwtPlotCurve*>{};
+    bernsteinCurves.clear();
 
     for(int i=0; i < distributions.size(); i++){
         bernsteinCurves.push_back(new QwtPlotCurve());
@@ -119,13 +120,19 @@ void BernsteinShapeInterface::setPlot(){
         bernsteinCurves[i]->setYAxis(QwtPlot::yRight);
         bernsteinCurves[i]->setPen(penBernstein);
     }
+}
 
+void BernsteinShapeInterface::plot(bool newSpacing){
+
+    if (newSpacing){setPlot();}
+    scaledShape = shape;
+    scaledShape += -1;
+    scaledShape *= (side == top) ? 1 : -1;
     for(int i=0;i<distributions.size();i++){
-        bernsteinCurves[i]->setRawSamples(spacing.colptr(0),distributions[i].colptr(0),distributions[i].col(0).n_elem);
+        bernsteinCurves[i]->setSamples(spacing.colptr(0),distributions[i].colptr(0),distributions[i].col(0).n_elem);
     }
 
-    shapeCurve->setRawSamples(spacing.colptr(0),scaledShape.colptr(0),scaledShape.col(0).n_elem);
-    shapeCurve->setPen(pen);
+    shapeCurve->setSamples(spacing.colptr(0),scaledShape.colptr(0),scaledShape.col(0).n_elem);
     foilPlot->replot();
 }
 
@@ -151,7 +158,6 @@ void BernsteinShapeInterface::onVisible(bool visible){
 void BernsteinShapeInterface::setCoefficients(arma::vec& newCoefficients, bool calcFoil){
 
     BernsteinShape::setCoefficients(newCoefficients);
-    calcVisualizationShape();
     if(calcFoil){emit changed();}
 }
 
@@ -170,18 +176,10 @@ void BernsteinShapeInterface::modify(QPointF pt, QPointF delta, bool negative){
     setCoefficients(addCoefs,true);
 }
 
-void BernsteinShapeInterface::calcVisualizationShape(){
-
-    scaledShape = shape;
-    scaledShape += -1;
-    scaledShape *= (side == top) ? 1 : -1;
-}
-
 void BernsteinShapeInterface::setSide(BernsteinShape::sideType side){
 
     BernsteinShape::setSide(side);
     setItemText();
-    calcVisualizationShape();
     emit changed(true);
 }
 

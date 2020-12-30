@@ -38,7 +38,7 @@ friend QDataStream& operator>>(QDataStream& in, BernsteinShapeInterface& shape);
     //UI
     void setInterfaceValues();
     void setupInterface();
-    void calcVisualizationShape();
+    void plot(bool newSpacing = false);
     void onActivation(bool activate, bool recursively);
     void onVisible(bool visible);
     Ui_shapeWidget ui;

@@ -16,6 +16,8 @@ Q_OBJECT
 friend QDataStream& operator<<(QDataStream& out, const FoilMode& mode); //For Serrialization, (saving the Airfoil)
 friend QDataStream& operator>>(QDataStream& in, FoilMode& mode); //For Serrialization, (loading the Airfoil)
 
+    QString fileVersion;
+
     friend class ModePlot;
     
     AirfoilInterface* airfoil;
@@ -25,6 +27,7 @@ friend QDataStream& operator>>(QDataStream& in, FoilMode& mode); //For Serrializ
     bool fk = false;
     bool smoothUpper = false;
     bool smoothLower = false;
+    bool turbulent = false;
 
     public: enum modeTypes{full,coords};
     private: modeTypes modeType;
@@ -37,6 +40,7 @@ friend QDataStream& operator>>(QDataStream& in, FoilMode& mode); //For Serrializ
     arma::mat fkBot;
     arma::vec turbTop{1.0,0};
     arma::vec turbBot{1.0,0};
+    void setTurbulent(bool turb, bool recalc = true);
 
     //For loaded Coords
     arma::mat lowerSide;
@@ -53,9 +57,10 @@ friend QDataStream& operator>>(QDataStream& in, FoilMode& mode); //For Serrializ
     void onVisible(bool visible);
 
     void setFK(bool on, bool recalc = true);
+    void splitCoords();
 
 public:
-    FoilMode(AirfoilInterface* foil, ModePlot* modePlot);
+    FoilMode(AirfoilInterface* foil, ModePlot* modePlot, QString fileVersion = QString("0.0.0"));
     FoilMode(AirfoilInterface* foil, QTextStream& in, ModePlot* modePlot);
     ~FoilMode();
 

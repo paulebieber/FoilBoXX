@@ -43,14 +43,27 @@ QDataStream& operator>>(QDataStream& in, AirfoilInterface& airfoil){
     bool turbOn;
     in >> turbOn >> turbTop >> turbBot;
     airfoil.setAttribute(Airfoil::setTurbTop,turbTop,false);
-    airfoil.setAttribute(Airfoil::setTurbOn,turbOn,false);
-    in >> airfoil.fk >> airfoil.fkChordfactor;
+    airfoil.setTurbOn(turbOn,false);
+    bool fk;
+    in >> fk >> airfoil.fkChordfactor;
+    airfoil.setFkOn(fk,false);
     airfoil.setClassShapes();
     airfoil.setAttribute(Airfoil::setTurbBot,turbBot,true); //Also recalcs
     airfoil.setInterfaceValues();
     airfoil.hasFile = true;
 
     return in;
+}
+
+void AirfoilInterface::setFkOn(bool on, bool recalc){
+    setAttribute(setFk,on,recalc);
+    ui.doubleSpinBox_fkChordFactor->setEnabled(on);
+}
+
+void AirfoilInterface::setTurbOn(bool on, bool recalc){
+    setAttribute(Airfoil::setTurbOn,on,recalc);
+    ui.doubleSpinBox_turbBot->setEnabled(on);
+    ui.doubleSpinBox_turbTop->setEnabled(on);
 }
 
 void AirfoilInterface::changedBaseCoords(bool nChanged){
@@ -119,8 +132,8 @@ void AirfoilInterface::setupInterface(){
     connect(ui.doubleSpinBox_fkChordFactor,QOverload<double>::of(&QDoubleSpinBox::valueChanged),[this](double x){setAttribute(setFkChordFactor,x,true);});
     connect(ui.doubleSpinBox_turbTop,QOverload<double>::of(&QDoubleSpinBox::valueChanged),[this](double x){setAttribute(setTurbTop,x,true);});
     connect(ui.doubleSpinBox_turbBot,QOverload<double>::of(&QDoubleSpinBox::valueChanged),[this](double x){setAttribute(setTurbBot,x,true);});
-    connect(ui.groupBox_fk,&QGroupBox::toggled,[this](bool state){setAttribute(setFk,state,true);ui.doubleSpinBox_fkChordFactor->setEnabled(state);});
-    connect(ui.groupBox_Turb,&QGroupBox::toggled,[this](bool state){setAttribute(setTurbOn,state,true);ui.doubleSpinBox_turbBot->setEnabled(state);ui.doubleSpinBox_turbTop->setEnabled(state);});
+    connect(ui.groupBox_fk,&QGroupBox::toggled,[this](bool state){setFkOn(state,true);});
+    connect(ui.groupBox_Turb,&QGroupBox::toggled,[this](bool state){setTurbOn(state,true);});
     connect(ui.pushButton_calcPolarAll,&QPushButton::clicked,[this](){emit calcAllPolars();});
     connect(ui.pushButton_optimizePolars,&QPushButton::clicked,[this](){emit optimizePolars();});
 

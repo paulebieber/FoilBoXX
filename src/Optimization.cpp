@@ -34,7 +34,7 @@ const double OptimizationThread::fitness(const dlib::matrix<double>& coefs){
         airfoil->setAttribute(Airfoil::setYMinus,coefs(coefs.nr()-2)/10,false);
 
         //TurbBot
-        airfoil->setAttribute(Airfoil::setTurbBot,coefs(coefs.nr()-3)/10,false);
+        //airfoil->setAttribute(Airfoil::setTurbBot,coefs(coefs.nr()-3),false);
 
         for(int j=0; j<shapes.size();j++){
             arma::vec shapeCoefs(shapes[j]->getN());
@@ -66,6 +66,7 @@ const double OptimizationThread::fitness(const dlib::matrix<double>& coefs){
 
         //Add Thickness panelty
         double add = std::max(0.138-airfoil->getThickness(), 0.0) * 100;
+        //double add = fabs(0.138-airfoil->getThickness()vB* 100;
         fitness += add;
         std::cout << "thickAdd: " << add << std::endl;
 
@@ -110,7 +111,7 @@ void OptimizationThread::run(){
     }
 
     //resize start
-    start.set_size(n_coefs+3+modes.size());
+    start.set_size(n_coefs+2+modes.size());
 
     arma::vec bounds{-2.0,2.0};
     arma::vec boundsEta{-20.0,25.0};
@@ -147,9 +148,9 @@ void OptimizationThread::run(){
     ub(ub.nr()-2) = 0.3*10;
 
     //TurbBot
-    start(start.nr()-3) = airfoil->getTurb()[1]*10;
-    lb(lb.nr()-3) = 0.5*10;
-    ub(ub.nr()-3) = 1.0*10;
+    //start(start.nr()-3) = airfoil->getTurb()[1];
+    //lb(lb.nr()-3) = 0.5;
+    //ub(ub.nr()-3) = 0.92;
 
     std::cout << "lower" << lb << "upper" << ub << std::endl;
     std::cout << "start" << start << std::endl;

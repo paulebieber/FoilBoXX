@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>314</width>
-    <height>388</height>
+    <width>229</width>
+    <height>400</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -226,6 +226,16 @@
         </property>
        </widget>
       </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBox_reCa1">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Re at ca=1 (const. Lift)</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label_32">
         <property name="font">
@@ -290,16 +300,6 @@
         </property>
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkBox_reCa1">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="text">
-         <string>Re at ca=1 (const. Lift)</string>
         </property>
        </widget>
       </item>
