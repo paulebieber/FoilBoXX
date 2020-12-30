@@ -16,6 +16,9 @@ class OptimizationThread: public QThread {
  
     std::vector<BernsteinShapeInterface*> shapes;
     std::vector<PolarGoal*> polarGoals;
+    std::vector<Polar*> polars;
+    std::vector<FoilMode*> modes;
+
     AirfoilInterface* airfoil;
     const double fitness(const dlib::matrix<double>& coefs);
 
@@ -28,6 +31,7 @@ public:
         this->airfoil = airfoil;
         //Enables stopping the Opt
         runOptimization = true;
+    void changeFlapText();
     }
     bool runOptimization;
  
@@ -35,6 +39,5 @@ public slots:
     void run() override;
  
 signals:
-    //void readyForShapePlot(BernsteinShape* shape);
-    //void readyForPolarPlot(Polar*);
+    void finished();
 };

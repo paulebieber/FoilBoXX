@@ -3,3 +3,5 @@
 /debug
 compile_commands.json
 /.clangd
+*~
+*.swp

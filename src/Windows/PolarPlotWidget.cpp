@@ -11,8 +11,9 @@ PolarPlotWidget::PolarPlotWidget(QWidget* parent): QWidget(parent){
     it->attach(cLAlpha);
 
     cLCD->setAxisScale(QwtPlot::yRight,0,1.5);
-    cLCD->setAxisScale(QwtPlot::xBottom,0,25);
+    cLCD->setAxisScale(QwtPlot::xBottom,0,0.025);
     cLCD->enableAxis(QwtPlot::yLeft,false);
+    cLCD->enableAxis(QwtPlot::yRight,true);
     
     cLAlpha->setAxisScale(QwtPlot::yRight,0,1.5);
     cLAlpha->setAxisScale(QwtPlot::xBottom,-5,15);

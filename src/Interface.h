@@ -46,7 +46,7 @@ Q_OBJECT
     void newFoil(bool fromStart = false);
     void deleteAirfoil(AirfoilInterface* airfoil);
     void newPolar(FoilMode* mode);
-    void newPolarGoal(Polar* polar);
+    void newPolarGoal(Polar* polar, PolarGoal::Modes mode = PolarGoal::cD);
     void newFoilMode(AirfoilInterface* airfoil, bool fromStart = false, QTextStream* in = nullptr);
     void deleteMode(FoilMode* mode);
     void deleteBernsteinShape(BernsteinShapeInterface* shape);
@@ -60,7 +60,7 @@ Q_OBJECT
     void saveFlap(FoilMode* mode);
     void saveAirfoil(AirfoilInterface* airfoil);
     void saveAirfoilAs(AirfoilInterface* airfoil);
-    void loadAirfoil();
+    bool loadAirfoil();
     void loadCoords();
     BernsteinShapeInterface* newBernsteinShape(AirfoilInterface* airfoil);
 
@@ -87,13 +87,7 @@ Q_OBJECT
     QString styleInactive = QString("background-color: rgb(238,238,236);\ncolor: rgb(150,150,150);");
     void changeColor();
 
-    // For Plotting while opt
-    void plotShapes(BernsteinShape* shape);
-    void plotPolar(Polar* polar);
-
-
 public:
     Interface(QApplication& app, QString version);
-
 };
 

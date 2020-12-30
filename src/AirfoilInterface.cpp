@@ -1,15 +1,14 @@
 // Created by paul on 3/12/20.
 
 #include "AirfoilInterface.h"
-#include <qnamespace.h>
 #include <QDebug>
 
-AirfoilInterface::AirfoilInterface(QTreeWidget* tree, QString name): thicknessXfoil(getFlosse()),HierarchyElement(tree),
+AirfoilInterface::AirfoilInterface(QTreeWidget* tree, QString name): thicknessXfoil(getFlosseCut()),HierarchyElement(tree),
     name(name), hasFile(false), flapRelChanged(true){
 
     connect(this,&AirfoilInterface::changed,this,[=](){
-                ui.thickness->setText(QString::number(thickness*100.0,'f',2) + " %");
-            },Qt::QueuedConnection);
+                ui.thickness->setText(QString::number(thickness*100.0,'f',2) + " %");},Qt::QueuedConnection);
+    connect(this,&AirfoilInterface::changed,this,&AirfoilInterface::changeFlapText,Qt::QueuedConnection);
     
     setName(name);
     setBold(true);  
@@ -57,6 +56,12 @@ QDataStream& operator>>(QDataStream& in, AirfoilInterface& airfoil){
 void AirfoilInterface::changedBaseCoords(bool nChanged){
 
     thickness = thicknessXfoil.calcJustThickness();
+    emit changed();
+    if(nChanged){emit replot();}
+}
+
+void AirfoilInterface::changeFlapText(){
+
     if(flapByRel){
         ui.doubleSpinBox_flapY->blockSignals(true);
         ui.doubleSpinBox_flapY->setValue(getFlapYAbsolute());
@@ -75,8 +80,6 @@ void AirfoilInterface::changedBaseCoords(bool nChanged){
         flapRelChanged = false;
     }
 
-    emit changed();
-    if(nChanged){emit replot();}
 }
 
 void AirfoilInterface::onActivation(bool active, bool recursively){
@@ -103,6 +106,8 @@ void AirfoilInterface::setupInterface(){
     //UIWidget
     ui.setupUi(&widget);
     setInterfaceValues(); 
+
+    connect(this,&AirfoilInterface::reInterface,this,&AirfoilInterface::setInterfaceValues);
 
     connect(ui.doubleSpinBox_yPlus,QOverload<double>::of(&QDoubleSpinBox::valueChanged),[this](double yPlus){setAttribute(setYPlus,yPlus,true);});
     connect(ui.doubleSpinBox_yMinus,QOverload<double>::of(&QDoubleSpinBox::valueChanged),[this](double yMinus){setAttribute(setYMinus,yMinus,true);});
@@ -153,6 +158,11 @@ void AirfoilInterface::setupInterface(){
 
 void AirfoilInterface::setInterfaceValues(){
 
+    std::list<QObject*> toChange({ui.doubleSpinBox_flapX,ui.doubleSpinBox_flapY,ui.doubleSpinBox_yNose,
+                            ui.doubleSpinBox_yPlus,ui.doubleSpinBox_yMinus,ui.doubleSpinBox_turbBot,ui.doubleSpinBox_turbTop,
+                            ui.doubleSpinBox_flapY_rel,ui.groupBox_fk,ui.groupBox_Turb});
+    for(QObject* obj : toChange){obj->blockSignals(true);}
+
     ui.doubleSpinBox_yPlus->setValue(getYPlus());
     ui.doubleSpinBox_yMinus->setValue(getYMinus());
     ui.doubleSpinBox_yNose->setValue(getNoseY());
@@ -169,4 +179,8 @@ void AirfoilInterface::setInterfaceValues(){
     auto turb = getTurb();
     ui.doubleSpinBox_turbTop->setValue(turb[0]);
     ui.doubleSpinBox_turbBot->setValue(turb[1]);
+    ui.groupBox_Turb->setChecked(turbOn);
+    ui.groupBox_fk->setChecked(fk);
+
+    for(QObject* obj : toChange){obj->blockSignals(false);}
 }

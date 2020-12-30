@@ -6,8 +6,8 @@
 #include <vector>
 #include <QVector>
 
-BernsteinShapeInterface::BernsteinShapeInterface(HierarchyElement* airfoil, QwtCustomPlot* foilPlot, QwtCustomPlot* pressurePlot):
-                                foilPlot(foilPlot),pressurePlot(pressurePlot), HierarchyElement(airfoil, true), width(0.2){
+BernsteinShapeInterface::BernsteinShapeInterface(HierarchyElement* airfoil, QwtCustomPlot* foilPlot, QwtCustomPlot* pressurePlot, QString fileVersion):
+                                foilPlot(foilPlot),pressurePlot(pressurePlot), HierarchyElement(airfoil, true), width(0.2), fileVersion(fileVersion){
 
     shapeCurve = new QwtPlotCurve();
     shapeCurve->attach(foilPlot);
@@ -35,6 +35,7 @@ QDataStream& operator<<(QDataStream& out, const BernsteinShapeInterface& shape){
 
     out << QString("BernsteinShape");
     out << (int)shape.side;
+    out << shape.modifying;
     out << QVector<double>::fromStdVector(arma::conv_to<std::vector<double>>::from(shape.coefficients));
     return out;
 
@@ -45,15 +46,18 @@ QDataStream& operator>>(QDataStream& in, BernsteinShapeInterface& shape){
     int sideInt;
     in >> sideInt;
     shape.side = (BernsteinShapeInterface::sideType)sideInt;
+    if(shape.fileVersion != QString("0.5.0") && shape.fileVersion != QString("0.5.1")){
+        bool modi; in >> modi; shape.setModifying(modi,true);
+    }
     QVector<double> vec;
     in >> vec;
     std::vector<double> vec2(vec.begin(),vec.end());
     arma::vec coefs(arma::conv_to<arma::vec>::from(vec2));
 
     shape.changed(true);
-    shape.setCoefficients(coefs);
     shape.setPlot();
     shape.setItemText();
+    shape.setCoefficients(coefs,true);
     
     return in;
 }
@@ -144,9 +148,16 @@ void BernsteinShapeInterface::onVisible(bool visible){
     foilPlot->replot();
 }
 
+void BernsteinShapeInterface::setCoefficients(arma::vec& newCoefficients, bool calcFoil){
+
+    BernsteinShape::setCoefficients(newCoefficients);
+    calcVisualizationShape();
+    if(calcFoil){emit changed();}
+}
+
 void BernsteinShapeInterface::modify(QPointF pt, QPointF delta, bool negative){
 
-    if(!modifying){return;}
+    if(!modifying || !getParent()->active){return;}
 
     double weight = 0.2;
     arma::vec addCoefs = xs;
@@ -156,13 +167,7 @@ void BernsteinShapeInterface::modify(QPointF pt, QPointF delta, bool negative){
         }else{addCoefs[i] = 0.0;}
     }
     addCoefs = coefficients + delta.y()*addCoefs*((negative | (!negative && side == top))?1:-1);
-    setCoefficients(addCoefs);
-    update();
-}
-
-void BernsteinShapeInterface::update(){
-    calcVisualizationShape();
-    emit changed();
+    setCoefficients(addCoefs,true);
 }
 
 void BernsteinShapeInterface::calcVisualizationShape(){
@@ -187,7 +192,7 @@ void BernsteinShapeInterface::setupInterface(){
     connect(ui.radioButton_top,&QRadioButton::toggled,[this](bool on){
             setSide(on ? top : bottom);
         });
-    ui.doubleSpinBox_dragWidth->setRange(0.05,0.5);
+    ui.doubleSpinBox_dragWidth->setRange(0.01,0.5);
     ui.doubleSpinBox_dragWidth->setSingleStep(0.01);
     setInterfaceValues();
     connect(ui.spinBox_nDisc,QOverload<int>::of(&QSpinBox::valueChanged),this,&BernsteinShapeInterface::changeNCoefs);

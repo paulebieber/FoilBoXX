@@ -61,16 +61,22 @@ public:
     double getThickness(){return thickness;};
     void setFoilType(foilType type){this->type = type; emit visibleChanged(type==coords ? true : false);}
     foilType getFoilType(){return type;}
+    void setAttribute(Airfoil::attributes att,double value, bool recalc){Airfoil::setAttribute(att,value,recalc);
+                                                                if(!recalc){emit reInterface();}}
 
     QColor* getColor(){
         return &colors[nCol++];
     };
+
+public slots:
+    void changeFlapText();
 
 signals:
     void changed();
     void activated(bool recursively);
     void visibleChanged(bool visible);
     void replot();
+    void reInterface();
     void activeChanged(bool active);
     void calcAllPolars();
     void optimizePolars();

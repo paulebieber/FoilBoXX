@@ -15,6 +15,7 @@ Polar::Polar(std::vector<QwtCustomPlot*> plots, FoilMode* mode, QString& fileVer
 
     //Plot when parallel proc. done
     connect(thread,&WorkerThread::resultReady,this,&Polar::plot,Qt::QueuedConnection);
+    connect(this,&Polar::plotLater,this,&Polar::plot,Qt::QueuedConnection);
 
     setItemText();
     setCurveColor(mode->getColor());
@@ -64,7 +65,7 @@ QDataStream& operator<<(QDataStream& out, const Polar& polar){
 QDataStream& operator>>(QDataStream& in, Polar& polar){
 
     int calcModeInt;
-    if(polar.fileVersion == QString("0.6.0")){
+    if(polar.fileVersion != QString("0.5.0") && polar.fileVersion != QString("0.5.1")){
         in >> calcModeInt;
         polar.calcMode = (Polar::calcTypes)calcModeInt;
         if (polar.calcMode == Analysis::clCalc){
@@ -122,17 +123,21 @@ void Polar::calcPolarParallel(){
     //std::cout << "got: " << polar << std::endl;
 }
 
-QThread* Polar::calcOnDemand(){
+void Polar::calcOnDemand(){
     //ui.pushButton_calcPolar->setEnabled(false);
+    //if(thread->isRunning()){return;};
     thread->start();
     needsUpdate(false);
-    return thread;
+}
+
+//comes from Base Analysis and fires on Foilmode change
+void Polar::calc(){
+    calcOnDemand();
 }
 
 void Polar::plot(){
 
-    multipliedCd = arma::vec(polar.col(1)*1000);
-    curveCLCD->setSamples(multipliedCd.memptr(),polar.colptr(0),polar.n_rows);
+    curveCLCD->setSamples(polar.colptr(1),polar.colptr(0),polar.n_rows);
     curveCLAlpha->setSamples(polar.colptr(2),polar.colptr(0),polar.n_rows);
     curveCLXTrTop->setSamples(polar.colptr(3),polar.colptr(0),polar.n_rows);
     curveCLXTrBot->setSamples(polar.colptr(4),polar.colptr(0),polar.n_rows);
@@ -156,7 +161,7 @@ void Polar::onActivation(bool active, bool recursively){
     curveCLXTrBot->setPen(pen);
     curveCM->setPen(pen);
 
-    plot();
+    emit plotLater();
 
     if(active){emit activated(recursively);}
 }
@@ -169,7 +174,7 @@ void Polar::onVisible(bool visible){
     curveCLXTrBot->setVisible(visible);
     curveCM->setVisible(visible);
 
-    plot();
+    emit plotLater();
 }
 
 void Polar::setItemText(){
@@ -179,17 +184,17 @@ void Polar::setItemText(){
 
 void Polar::setCurveColor(QColor color){
     pen.setColor(color);
-    plot();
+    plotLater();
 }
 
 void Polar::needsUpdate(bool need) {
-    if(need){
-        treeItem->setForeground(0,Qt::red);
-        ui.groupBox->setStyleSheet("QGroupBox:title {color: rgb(200, 10, 10);}");
-    }else{
-        treeItem->setForeground(0,Qt::black);
-        ui.groupBox->setStyleSheet("QGroupBox:title {color: rgb(0, 0, 0);}");
-    }
+    //if(need){
+    //    treeItem->setForeground(0,Qt::red);
+    //    ui.groupBox->setStyleSheet("QGroupBox:title {color: rgb(200, 10, 10);}");
+    //}else{
+    //    treeItem->setForeground(0,Qt::black);
+    //    ui.groupBox->setStyleSheet("QGroupBox:title {color: rgb(0, 0, 0);}");
+    //}
 }
 
 void Polar::setupInterface(){

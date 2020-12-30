@@ -13,6 +13,7 @@ Q_OBJECT
 
 friend QDataStream& operator<<(QDataStream& out, const BernsteinShapeInterface& shape);
 friend QDataStream& operator>>(QDataStream& in, BernsteinShapeInterface& shape);
+    QString fileVersion;
 
     QwtCustomPlot* foilPlot;
     QwtCustomPlot* pressurePlot;
@@ -44,9 +45,10 @@ friend QDataStream& operator>>(QDataStream& in, BernsteinShapeInterface& shape);
 
 public:
 
-    BernsteinShapeInterface(HierarchyElement* airfoil, QwtCustomPlot* foilPlot, QwtCustomPlot* pressurePlot);
+    BernsteinShapeInterface(HierarchyElement* airfoil, QwtCustomPlot* foilPlot, QwtCustomPlot* pressurePlot, QString fileVersion = QString(""));
     ~BernsteinShapeInterface();
     void modify(QPointF pt, QPointF delta, bool negative);
+    void setCoefficients(arma::vec& newCoefficients, bool calcFoil = true);
     void setSide(BernsteinShape::sideType side);
     void update();
 

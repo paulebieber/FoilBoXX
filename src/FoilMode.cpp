@@ -7,8 +7,9 @@ FoilMode::FoilMode(AirfoilInterface* airfoil, ModePlot* modePlot):HierarchyEleme
 
     connectToFoil(airfoil);
     modePlot->connectToMode(this);
-    setItemText();
     setupInterface();
+
+    connect(this,&FoilMode::changed,this,[=](){setItemText();});
 
     calcCoords();
 }
@@ -91,7 +92,20 @@ void FoilMode::calcCoords(){
   
     if(modeType == full){
 
+        if(smoothUpper){
+            if(!fk){
+                setEta(airfoil->getEtaDesignUpper(),false);
+            }
+            else{
+                setEta(0.0,false);
+            }
+
+        }else if(smoothLower){
+            setEta(airfoil->getEtaDesignLower(),false);
+        }
+
         std::tuple<std::vector<arma::mat>,arma::vec,arma::vec> all = airfoil->getModeCoords(fk,eta);
+        std::cout << "used eta " << eta << std::endl;
         std::vector<arma::mat> coords = std::get<0>(all);
 
         turbTop = std::get<1>(all);
@@ -154,14 +168,15 @@ void FoilMode::setItemText(QString string){
 void FoilMode::setEta(double eta, bool recalc){
 
     this->eta = eta;
-    if(recalc){calcCoords();}
-    setItemText();
+    if(recalc){calcCoords();
+    }else{emit reInterface();}
 }
 
 void FoilMode::setFK(bool on, bool recalc){
 
     fk = on;
-    if(recalc){calcCoords();}
+    if(recalc){calcCoords();
+    }else{emit reInterface();}
 }
 
 void FoilMode::onActivation(bool active, bool recursively){
@@ -178,15 +193,14 @@ void FoilMode::onVisible(bool visible){
 
 void FoilMode::setupInterface(){
 
+    connect(this,&FoilMode::reInterface,this,&FoilMode::setInterfaceValues);
+
     if(modeType == full){
         ui.setupUi(&widget);
         ui.doubleSpinBox_eta->setRange(-30,30);
         ui.doubleSpinBox_eta->setSingleStep(0.5);
-        connect(ui.pushButton_designEtaLower,&QPushButton::clicked,[this](){setEta(airfoil->getEtaDesignLower(),true);setInterfaceValues();});
-        connect(ui.pushButton_designEtaUpper,&QPushButton::clicked,[this](){
-                if(!fk){setEta(airfoil->getEtaDesignUpper(),true);}
-                else{setEta(0.0,true);}
-                setInterfaceValues();});
+        connect(ui.checkBox_smoothUpper,&QCheckBox::clicked,[this](bool status){smoothUpper=status;calcCoords();});
+        connect(ui.checkBox_smoothLower,&QCheckBox::clicked,[this](bool status){smoothLower=status;calcCoords();});
         connect(ui.doubleSpinBox_eta,QOverload<double>::of(&QDoubleSpinBox::valueChanged),[this](double eta){setEta(eta,true);});
         connect(ui.checkBox_fk,&QCheckBox::stateChanged,[this](int status){setFK(status,true);});
     }
@@ -207,6 +221,9 @@ void FoilMode::setupInterface(){
 
 void FoilMode::setInterfaceValues(){
 
+    std::list<QObject*> toChange({ui.checkBox_fk,ui.doubleSpinBox_eta});
+    for(QObject* obj : toChange){obj->blockSignals(true);}
+
     if(modeType == full){
         ui.doubleSpinBox_eta->setValue(eta);
         ui.checkBox_fk->setChecked(fk);
@@ -214,4 +231,5 @@ void FoilMode::setInterfaceValues(){
         uiCoords.doubleSpinBox_turbTop->setValue(turbTop(0));
         uiCoords.doubleSpinBox_turbBot->setValue(turbBot(0));
     }
+    for(QObject* obj : toChange){obj->blockSignals(false);}
 }

@@ -20,8 +20,11 @@ friend QDataStream& operator>>(QDataStream& in, FoilMode& mode); //For Serrializ
     
     AirfoilInterface* airfoil;
     QMetaObject::Connection airfoilConnection;
+
     double eta = 0.0;
     bool fk = false;
+    bool smoothUpper = false;
+    bool smoothLower = false;
 
     public: enum modeTypes{full,coords};
     private: modeTypes modeType;
@@ -49,7 +52,6 @@ friend QDataStream& operator>>(QDataStream& in, FoilMode& mode); //For Serrializ
     void onActivation(bool active, bool recursively=false);
     void onVisible(bool visible);
 
-    void setEta(double eta, bool recalc = true);
     void setFK(bool on, bool recalc = true);
 
 public:
@@ -64,8 +66,8 @@ public:
     QString getCoordsName();
     void connectToFoil(AirfoilInterface* foil);
     void plotCoords();
-    void setItemText();
     void setItemText(QString string);
+    void setEta(double eta, bool recalc = true);
 
     //Getters
     AirfoilInterface* getAirfoil(){return airfoil;};
@@ -75,10 +77,16 @@ public:
     double& getTurbBot(){return turbBot(0);}
     bool getFk(){return fk;}
     modeTypes getModeType(){return modeType;}
+    bool getSmoothUpper(){return smoothUpper;}
+    bool getSmoothLower(){return smoothLower;}
     arma::mat* getAero(){return &coordsAero;}
     QColor& getColor(){return color;}
+
+public slots:
+    void setItemText();
 
 signals:
     void activated(bool recursively);
     void changed();
+    void reInterface();
 };

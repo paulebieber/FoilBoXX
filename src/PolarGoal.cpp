@@ -1,69 +1,69 @@
 
 #include "PolarGoal.h"
-#include <qnamespace.h>
 #include <QDebug>
+#include <iostream>
+#include <iterator>
 
-PolarGoal::PolarGoal(QwtCustomPlot* plot, Polar* polar):HierarchyElement(polar),plot(plot),polar(polar),
-    goalPts(arma::mat{{0.2,0.006},{0.4,0.007},{0.5,0.008}}),normalDiff(false){
+PolarGoal::PolarGoal(QwtCustomPlot* plot, Modes mode, Polar* polar, QString fileVersion):HierarchyElement(polar),
+    plot(plot),polar(polar),mode(mode),verticalDiff(mode != cD),normalDiff(false),bias(1.0),fileVersion(fileVersion){
 
-    curve->attach(plot);
     curveArea->attach(plot);
-    curveHandles->attach(plot);
-    curve->setYAxis(QwtPlot::yRight);
-    curveHandles->setYAxis(QwtPlot::yRight);
     curveArea->setYAxis(QwtPlot::yRight);
-    curve->setRenderHint(QwtPlotCurve::RenderAntialiased,true);
     curveArea->setRenderHint(QwtPlotCurve::RenderAntialiased,true);
-    curveHandles->setRenderHint(QwtPlotCurve::RenderAntialiased,true);
 
-    connect(plot,&QwtCustomPlot::dragged,[this](QPointF pt, QPointF delta){modify(pt,delta);});
-    connect(plot,&QwtCustomPlot::startDrag,this,&PolarGoal::checkForPoint);
-    connect(plot,&QwtCustomPlot::dragFinished,[this](){dragging=false;});
+    arma::mat dragInit;
+    if(mode==cLAlpha){
+        dragInit = arma::mat{{6,1.0},{7,1.1},{10,1.2}};
+    }else if(mode == cD){
+        dragInit = arma::mat{{0.006,0.2},{0.007,0.4},{0.008,0.5}};
+    }else{
+        dragInit = arma::mat{{0.4,1.35},{0.45,1.325},{0.5,1.3}};
+    }
+    dragCurve = new DraggableCurve(plot,dragInit);
 
-    connect(this,&PolarGoal::calced,this,&PolarGoal::plotGoal,Qt::QueuedConnection);
+    connect(this,&PolarGoal::calced,this,&PolarGoal::plotDiff,Qt::QueuedConnection);
     connect(polar->thread,&WorkerThread::resultReady,this,&PolarGoal::calcDifferenceToPolar,Qt::DirectConnection);
 
-    symbol = new QwtSymbol(QwtSymbol::Ellipse);
-    symbol->setSize(QSize(6,6));
-    curveHandles->setPen(Qt::transparent);
-    curveHandles->setSymbol(symbol);
+    connect(dragCurve,&DraggableCurve::ptsChanged,this,&PolarGoal::calcDifferenceToPolar);
 
     pen.setWidth(1.0);
     pen.setColor(Qt::lightGray);
-    goalPen.setWidth(2.0);
-    goalPen.setColor(Qt::gray);
-    goalPen.setStyle(Qt::DashLine);
+    curveArea->setPen(pen);
     setItemText("Goal");
 
+    setUpInterface();
     calcDifferenceToPolar();
 }
 
 PolarGoal::~PolarGoal(){
-    curve->detach(); delete curve;
+    delete dragCurve;
     curveArea->detach(); delete curveArea;
 }
 
 QDataStream& operator<<(QDataStream& out, const PolarGoal& goal){
 
-    out << QString("PolarGoal");
-    out << QVector<double>::fromStdVector(arma::conv_to<std::vector<double>>::from(goal.goalPts.col(0)));
-    out << QVector<double>::fromStdVector(arma::conv_to<std::vector<double>>::from(goal.goalPts.col(1)));
+    if(goal.mode == PolarGoal::cLAlpha){
+        out << QString("PolarGoalCLAlpha");
+    }else if(goal.mode == PolarGoal::cD){
+        out << QString("PolarGoalCD");
+    }else if(goal.mode == PolarGoal::XTrTop){
+        out << QString("PolarGoalXTrTop");
+    }else if(goal.mode == PolarGoal::XTrBot){
+        out << QString("PolarGoalXTrBot");
+    }
+    out << goal.bias;
+    out << *goal.dragCurve;
     return out;
 }
 
 QDataStream& operator>>(QDataStream& in, PolarGoal& goal){
 
-    QVector<double> vec,vec2;
-    in >> vec;
-    in >> vec2;
-    std::vector<double> xs(vec.begin(),vec.end());
-    std::vector<double> ys(vec2.begin(),vec2.end());
-    arma::mat pts(xs.size(),2);
-    pts.col(0) = arma::conv_to<arma::vec>::from(xs);
-    pts.col(1) = arma::conv_to<arma::vec>::from(ys);
-
-    goal.goalPts = pts;
-    goal.plotGoal();
+    if(goal.fileVersion == QString("0.6.2")){
+        in >> goal.bias;
+    }
+    in >> *goal.dragCurve;
+    goal.setInterfaceValues();
+    goal.plotDiff();
 
     return in;
 }
@@ -74,121 +74,116 @@ void PolarGoal::calcDifferenceToPolar(){
 
     int n_disc = 100;
     int count = 0;
-    int viewRatio = 40;
 
     if(!polar->getSuccess()){return;}
     arma::mat& polarPts = polar->getPolar();
+    arma::mat& goalPts = dragCurve->getPts();
 
     arma::mat cLCD(polarPts.n_rows,2);
     cLCD.col(0) = polarPts.col(0);
-    cLCD.col(1) = polarPts.col(1);
+    if(mode == cD){
+        cLCD.col(1) = polarPts.col(1);
+    }else if(mode == cLAlpha){
+        cLCD.col(1) = cLCD.col(0);
+        cLCD.col(0) = polarPts.col(2);
+    }else if(mode == XTrTop){
+        for(int i = 0; i < cLCD.n_rows; i++){
+            cLCD(i,1) =polarPts(cLCD.n_rows-(1+i),0);
+            //turn araound order
+            cLCD(i,0) = polarPts(cLCD.n_rows-(1+i),3);
+        }
+    }else if (mode == XTrBot){
+        cLCD.col(1) = cLCD.col(0);
+        cLCD.col(0) = polarPts.col(4);
+    }
 
     //Coordinates for visualizing area
     if (cLCD.n_rows > 0){
 
         areaCoords = arma::mat((goalPts.n_rows-1)*n_disc*2,2);
 
-        if(normalDiff){
-            cLCD.col(1) *= viewRatio;
+        for(int i=1; i<goalPts.n_rows; i++){
+            arma::mat pts(n_disc,2);
+            pts.col(0) = arma::linspace(goalPts(i-1,0),goalPts(i,0),pts.n_rows);
+            pts.col(1) = arma::linspace(goalPts(i-1,1),goalPts(i,1),pts.n_rows);
+            double diff = distanceBetweenPoints(goalPts.row(i).t(),goalPts.row(i-1).t())/(pts.n_rows-1);
+            for(int j=0; j<pts.n_rows; j++){
 
-            for(int i=1; i<goalPts.n_rows; i++){
-                arma::mat pts(n_disc,2);
-                pts.col(0) = arma::linspace(goalPts(i-1,0),goalPts(i,0),pts.n_rows);
-                pts.col(1) = arma::linspace(viewRatio*goalPts(i-1,1),viewRatio*goalPts(i,1),pts.n_rows);
-                double diff =  (goalPts(i,1)-goalPts(i-1,1))/(pts.n_rows-1);
-                for(int j=0; j<pts.n_rows; j++){
-                    arma::vec ptOnPolar = closestPointToPoint(cLCD,pts.row(j).t(),cLCD(0,0),cLCD.tail_rows(1)(0));
-                    ptOnPolar(1) *= 1000/viewRatio;
-                    pts(j,1) *= 1000/viewRatio;
-
+                arma::vec ptOnPolar;
+                if(mode == cLAlpha || mode == XTrTop || mode == XTrBot){
+                    double ptcL = interpolate(cLCD,pts(j,0));
+                    ptOnPolar = arma::vec{pts(j,0),ptcL};
                     area += diff*distanceBetweenPoints(ptOnPolar,pts.row(j).t());
-
-                    areaCoords.row(count) = pts.row(j);
-                    areaCoords.row(count+1)= ptOnPolar.t();
-                    count+=2;
-                }
-            }
-        }else{
-            for(int i=1; i<goalPts.n_rows; i++){
-                arma::mat pts(n_disc,2);
-                pts.col(0) = arma::linspace(goalPts(i-1,0),goalPts(i,0),pts.n_rows);
-                pts.col(1) = arma::linspace(goalPts(i-1,1),goalPts(i,1),pts.n_rows);
-                double diff =  distanceBetweenPoints(goalPts.row(i).t(),goalPts.row(i-1).t())/(pts.n_rows-1);
-                for(int j=0; j<pts.n_rows; j++){
-                    double ptcD = interpolate(cLCD,pts(j,0));
-                    arma::vec ptOnPolar{pts(j,0),ptcD};
-                    ptOnPolar(1) *= 1000;
-                    pts(j,1) *= 1000;
-
+                }else{
+                    double ptcD = interpolate(cLCD,pts(j,1));
+                    if(pts(j,0) >= ptcD){
+                        ptOnPolar = pts.row(j).t();
+                    }else{
+                        ptOnPolar = arma::vec{ptcD,pts(j,1)};
+                    }
                     area += diff*distanceBetweenPoints(ptOnPolar,pts.row(j).t());
-
-                    areaCoords.row(count) = pts.row(j);
-                    //std::cout  << ptOnPolar.t() << std::endl;
-                    areaCoords.row(count+1)= ptOnPolar.t();
-                    count+=2;
                 }
+
+                areaCoords.row(count) = pts.row(j);
+                areaCoords.row(count+1)= ptOnPolar.t();
+                count+=2;
             }
         }
+        if(mode == cD){area*=200;} //Cd very small
+        if(mode == XTrTop || mode == XTrBot){area*=10;}
+        area *= bias;
+        //std::cout << "area" << area << std::endl;
     }else{
         areaCoords = arma::mat(0,2);
     }
     emit calced();
 }
 
-void PolarGoal::checkForPoint(QPointF pt){
-
-    for(int i = 0; i<goalPts.n_rows; ++i){
-        arma::vec ptA{pt.y(),pt.x()};
-        arma::vec ptB = goalPts.row(i).t();
-        ptB(1)=ptB(1)*1000;
-        if(fabs(ptB(0)-ptA(0)) < 0.03 && fabs(ptB(1)-ptA(1)) < 0.3){
-            dragIndex = i;  
-            dragging = true;
-            break;
-        }
-    }
-}
-
-void PolarGoal::modify(QPointF pt, QPointF delta){
-
-    if(!active || !dragging){return;}
-    arma::vec deltaA{delta.y(),delta.x()/1000};
-    goalPts.row(dragIndex) += deltaA.t();
-
-    calcDifferenceToPolar();
-    plotGoal();
-}
-
 void PolarGoal::onVisible(bool visible){
 
-    curve->setVisible(visible);
-    curveArea->setVisible(visible);
-    curveHandles->setVisible(visible);
+    //curveArea->setVisible(visible);
+    dragCurve->setVisible(visible);
 
-    plotGoal();
+    plotDiff();
 }
 
 void PolarGoal::onActivation(bool active, bool recursively){
 
-    curveArea->setPen(goalPen);
-    curve->setPen(goalPen);
-
-    plotGoal();
-
+    dragCurve->setActive(active);
+    plotDiff();
     if(active){emit activated(recursively);}
 }
 
-void PolarGoal::plotGoal(){
+void PolarGoal::plotDiff(){
 
-    multipliedGoal = arma::vec(goalPts.col(1)*1000);
-    curve->setSamples(multipliedGoal.memptr(),goalPts.colptr(0),goalPts.n_rows);
-    curveHandles->setSamples(multipliedGoal.memptr(),goalPts.colptr(0),goalPts.n_rows);
-    curveArea->setSamples(areaCoords.colptr(1),areaCoords.colptr(0),
+    curveArea->setSamples(areaCoords.colptr(0),areaCoords.colptr(1),
             areaCoords.n_rows);
-    curve->setPen(goalPen);
-    curveArea->setPen(pen);
     
     plot->replot();
+}
+
+void PolarGoal::setUpInterface(){
+    ui.setupUi(&widget);
+
+    ui.doubleSpinBox_multi->setRange(0.01,10.0);
+    ui.doubleSpinBox_multi->setDecimals(3);
+    ui.doubleSpinBox_multi->setSingleStep(0.1);
+
+    connect(this,&PolarGoal::calced,this,[=](){ui.label_multi->setText(QString::number(area));},Qt::QueuedConnection);
+
+    widget.show();
+
+    //connect(ui.checkBox_verticalDiff,&QCheckBox::stateChanged,[this](bool state){verticalDiff = state;calcDifferenceToPolar();});
+    connect(ui.doubleSpinBox_multi,QOverload<double>::of(&QDoubleSpinBox::valueChanged),[=](double value){bias=value;calcDifferenceToPolar();});
+
+    setInterfaceValues();
+}
+
+void PolarGoal::setInterfaceValues(){
+    std::list<QObject*> toChange({ui.doubleSpinBox_multi});
+    for(QObject* obj : toChange){obj->blockSignals(true);}
+    ui.doubleSpinBox_multi->setValue(bias);
+    for(QObject* obj : toChange){obj->blockSignals(false);}
 }
 
 void PolarGoal::setItemText(QString string){

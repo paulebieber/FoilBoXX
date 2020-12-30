@@ -30,13 +30,14 @@ public:
     HierarchyElement* getParent(){return parent;}
     QTreeWidgetItem* getTreeItem(){return treeItem;}
 
+    bool active;
+
 protected:
     QTreeWidgetItem* treeItem = new QTreeWidgetItem();
     HierarchyElement* parent = nullptr;
     QWidget widget;
 
     bool modifying;
-    bool active;
 
     void setVisible(bool visible, bool changeBox);
     void setBold(bool bold);

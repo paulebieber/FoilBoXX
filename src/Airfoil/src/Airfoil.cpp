@@ -200,14 +200,23 @@ void Airfoil::baseCoords() {
     //Cutting Flosse at start of flap:
     //Loop for reversing order of coords and removing redundant 0,0-Point (int i = 1).
     arma::mat upperBaseCoordsRev = upperBaseCoords.submat(1,0,upperBaseCoords.n_rows-1,1);
+    arma::mat upperBaseCoordsRevCut = upperBaseCoords.submat(1,0,upperBaseCoords.n_rows-1,1);
     upperBaseCoordsRev = coordsFromX(upperBaseCoordsRev,upperFlapPt(0)-0.01,true,true);
+    if(fk){upperBaseCoordsRevCut = coordsFromX(upperBaseCoordsRevCut,1.0,true,true);}
     arma::mat tempInverse = upperBaseCoordsRev;
+    arma::mat tempInverseCut = upperBaseCoordsRevCut;
 
     for (int i = 0; i < tempInverse.n_rows; ++i) {
         upperBaseCoordsRev.row(tempInverse.n_rows - 1 - i) = tempInverse.row(i);
     }
+    for (int i = 0; i < tempInverseCut.n_rows; ++i) {
+        upperBaseCoordsRevCut.row(tempInverseCut.n_rows - 1 - i) = tempInverseCut.row(i);
+    }
 
     flosse = arma::join_cols(upperBaseCoordsRev, coordsFromX(lowerBaseCoords,lowerFlapPt(0)-0.01,true,true));
+
+    //Cut at 1 for correct thickness calc in Xfoil (just thickness calc)
+    flosseCut = arma::join_cols(upperBaseCoordsRevCut, coordsFromX(lowerBaseCoords,1.0,true,true));
 
     // Creation of the Flap with Flapnose, depending on calculated flapPivot
     //Calculating Radii of flap nose for lower and upper noseside
@@ -289,6 +298,7 @@ void Airfoil::baseCoords() {
         fkCoordsTop = coordsFromX(upperBaseCoords,upperFlapPtDesignExtracted(0)-0.01,true,true);
         fkCoordsTop = coordsFromX(fkCoordsTop,upperFlapPtDesign(0)+0.005,false,true);
 
+        fkThickness = r_top+r_bot;
         fkCoordsBot = upperBaseCoords;
         for (int i = 1; i < fkCoordsBot.n_rows-2; ++i) {
 
@@ -296,7 +306,7 @@ void Airfoil::baseCoords() {
             double norm = sqrt(pow(deltaOrtho(0),2)+pow(deltaOrtho(1),2));
             deltaOrtho /= norm;
             arma::vec camb = upperBaseCoords.row(i).t();
-            fkCoordsBot.row(i) = (camb-(r_top+r_bot)*deltaOrtho).t();
+            fkCoordsBot.row(i) = (camb-fkThickness*deltaOrtho).t();
         }
 
         fkCoordsBot = coordsFromX(fkCoordsBot,lowerFlapPtDesignExtracted(0)-0.0225,true,true);

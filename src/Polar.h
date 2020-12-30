@@ -29,7 +29,6 @@ friend QDataStream& operator>>(QDataStream& in, Polar& polar); //For Serrializat
     QString& fileVersion;
 
     //Plotting
-    arma::vec multipliedCd;
     std::vector<QwtCustomPlot*> plots;
     QwtPlotCurve* curveCLCD = new QwtPlotCurve();
     QwtPlotCurve* curveCLAlpha = new QwtPlotCurve();
@@ -54,7 +53,7 @@ friend QDataStream& operator>>(QDataStream& in, Polar& polar); //For Serrializat
 public:
     Polar(std::vector<QwtCustomPlot*>, FoilMode* mode, QString& fileVersion);
     ~Polar();
-    void calc(){}; //Does nothing (virtual calc by Analysis class, fired if foilMode changes)
+    void calc();
     void plot();
     void setCurveColor(QColor color);
     bool getSuccess(){return success;}
@@ -63,10 +62,11 @@ public:
 
 signals:
     void activated(bool recursively);
+    void plotLater();
     void changed();
 
 public slots:
-    QThread* calcOnDemand();
+    void calcOnDemand();
 };
 
 class WorkerThread: public QThread {
