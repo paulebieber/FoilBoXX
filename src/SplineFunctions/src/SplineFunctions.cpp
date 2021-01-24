@@ -195,8 +195,8 @@ arma::mat rotate(const arma::mat& toRotate, const arma::vec& pt, const double& a
 double interpolate(const arma::mat& array, const double x, const bool der, const bool linear){
 
     int n = array.n_rows;
-    if(array(array.n_rows-1,0) <= x){return array(n-1,1)+((x-array(n-1,0))/(array(n-1,0)-array(n-2,0)))*(array(n-1,1)-array(n-2,1));}
-    if(array(0,0) >= x){return array(0,1)+((x-array(0,0))/(array(1,0)-array(0,0)))*(array(1,1)-array(0,1));}
+    if(array(array.n_rows-1,0) == x){return array(n-1,1)+((x-array(n-1,0))/(array(n-1,0)-array(n-2,0)))*(array(n-1,1)-array(n-2,1));}
+    if(array(0,0) == x){return array(0,1)+((x-array(0,0))/(array(1,0)-array(0,0)))*(array(1,1)-array(0,1));}
 
     for (int i = 1; i < array.n_rows; ++i) {
         if ((array(i,0) > x) && (i>0)){

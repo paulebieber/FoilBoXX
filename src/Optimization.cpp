@@ -33,6 +33,9 @@ const double OptimizationThread::fitness(const dlib::matrix<double>& coefs){
         //YMinus
         airfoil->setAttribute(Airfoil::setYMinus,coefs(coefs.nr()-2)/10,false);
 
+        //NoseY
+        airfoil->setAttribute(Airfoil::setNoseY,coefs(coefs.nr()-3)/100,false);
+
         //TurbBot
         //airfoil->setAttribute(Airfoil::setTurbBot,coefs(coefs.nr()-3),false);
 
@@ -48,7 +51,7 @@ const double OptimizationThread::fitness(const dlib::matrix<double>& coefs){
 
         //Wait for polars to calc
         for(int i = 0; i< polars.size();i++){
-            polars[i]->thread->wait(7*1000); //Wait 7 secs
+            polars[i]->thread->wait(); //Wait
         }
 
         for(int i = 0; i< polarGoals.size();i++){
@@ -111,7 +114,7 @@ void OptimizationThread::run(){
     }
 
     //resize start
-    start.set_size(n_coefs+2+modes.size());
+    start.set_size(n_coefs+3+modes.size());
 
     arma::vec bounds{-2.0,2.0};
     arma::vec boundsEta{-20.0,25.0};
@@ -146,6 +149,11 @@ void OptimizationThread::run(){
     start(start.nr()-2) = airfoil->getYMinus()*10;
     lb(lb.nr()-2) = 0.0;
     ub(ub.nr()-2) = 0.3*10;
+
+    //YMinus
+    start(start.nr()-3) = airfoil->getNoseY()*100;
+    lb(lb.nr()-3) = 0.0*100;
+    ub(ub.nr()-3) = 0.015*100;
 
     //TurbBot
     //start(start.nr()-3) = airfoil->getTurb()[1];

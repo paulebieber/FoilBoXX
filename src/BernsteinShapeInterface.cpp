@@ -7,7 +7,7 @@
 #include <QVector>
 
 BernsteinShapeInterface::BernsteinShapeInterface(HierarchyElement* airfoil, QwtCustomPlot* foilPlot, QwtCustomPlot* pressurePlot, QString fileVersion):
-                                foilPlot(foilPlot),pressurePlot(pressurePlot), HierarchyElement(airfoil, true), width(0.2), fileVersion(fileVersion){
+                                foilPlot(foilPlot),pressurePlot(pressurePlot), HierarchyElement(airfoil, true), width(0.05), fileVersion(fileVersion){
 
     shapeCurve = new QwtPlotCurve();
     shapeCurve->attach(foilPlot);
@@ -155,10 +155,22 @@ void BernsteinShapeInterface::onVisible(bool visible){
     foilPlot->replot();
 }
 
+void BernsteinShapeInterface::setFirstCoefficient(double firstCoef){
+    
+    if(firstCoef != coefficients(0)){
+        arma::vec tmpCoefficient = coefficients;
+        tmpCoefficient(0) = firstCoef;
+        setCoefficients(tmpCoefficient);
+    }
+}
+
 void BernsteinShapeInterface::setCoefficients(arma::vec& newCoefficients, bool calcFoil){
 
     BernsteinShape::setCoefficients(newCoefficients);
-    if(calcFoil){emit changed();}
+    if(calcFoil){
+        emit changed();
+        emit changedCoefs(coefficients(0));
+    }
 }
 
 void BernsteinShapeInterface::modify(QPointF pt, QPointF delta, bool negative){
@@ -190,8 +202,10 @@ void BernsteinShapeInterface::setupInterface(){
     connect(ui.radioButton_top,&QRadioButton::toggled,[this](bool on){
             setSide(on ? top : bottom);
         });
-    ui.doubleSpinBox_dragWidth->setRange(0.01,0.5);
-    ui.doubleSpinBox_dragWidth->setSingleStep(0.01);
+    ui.spinBox_nDisc->setRange(4,500);
+    ui.doubleSpinBox_dragWidth->setRange(0.001,0.5);
+    ui.doubleSpinBox_dragWidth->setDecimals(3);
+    ui.doubleSpinBox_dragWidth->setSingleStep(0.001);
     setInterfaceValues();
     connect(ui.spinBox_nDisc,QOverload<int>::of(&QSpinBox::valueChanged),this,&BernsteinShapeInterface::changeNCoefs);
     connect(ui.doubleSpinBox_dragWidth,QOverload<double>::of(&QDoubleSpinBox::valueChanged),[this](double value){width = value;});

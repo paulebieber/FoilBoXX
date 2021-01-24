@@ -49,10 +49,12 @@ public:
     ~BernsteinShapeInterface();
     void modify(QPointF pt, QPointF delta, bool negative);
     void setCoefficients(arma::vec& newCoefficients, bool calcFoil = true);
+    void setFirstCoefficient(double firstCoef);
     void setSide(BernsteinShape::sideType side);
     void update();
 
 signals:
     void changed(bool needsNewSpacing=false);
+    void changedCoefs(double firstCoef);
     void activated(bool recursively);
 };
