@@ -23,6 +23,7 @@ friend QDataStream& operator>>(QDataStream& in, AirfoilInterface& airfoil); //Fo
 
     QFile file;
     QString name;
+    QString fileVersion;
 
 public: enum foilType{full, coords};
 private: foilType type;
@@ -47,9 +48,10 @@ private: foilType type;
     bool flapRelChanged;
     void setTurbOn(bool on, bool recalc);
     void setFkOn(bool on, bool recalc);
+    void setAlternativeClassOn(bool on, bool recalc);
 
 public:
-    AirfoilInterface(QTreeWidget* tree, QString name);
+    AirfoilInterface(QTreeWidget* tree, QString name, QString fileVersion = "");
     ~AirfoilInterface();
 
     QFile& getFile(){return file;}

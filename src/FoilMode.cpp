@@ -172,10 +172,10 @@ void FoilMode::saveFlap(QTextStream& out){
 
     out << "FlapCoords for: " << getCoordsName() << "\n";
     for (int i = flapTop.n_rows-1; i >= 0; --i) {
-       out << flapTop(i,0) << "\t" << flapTop(i,1) << "\n";
+       out << flapTop(i,0) << " " << flapTop(i,1) << "\n";
     }
     for (int i = 0; i < flapBot.n_rows; ++i) {
-       out << flapBot(i,0) << "\t" << flapBot(i,1) << "\n";
+       out << flapBot(i,0) << " " << flapBot(i,1) << "\n";
     }
 }
 

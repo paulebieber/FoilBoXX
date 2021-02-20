@@ -325,7 +325,7 @@ void Interface::deleteMode(FoilMode* mode){
 
 void Interface::newFoil(bool fromStart){
 
-    AirfoilInterface* newAirfoil = new AirfoilInterface(treeView,"Base");
+    AirfoilInterface* newAirfoil = new AirfoilInterface(treeView,"Base",fileVersion);
     airfoils.push_back(newAirfoil);
 
     //Add Plot
@@ -355,10 +355,24 @@ void Interface::newFoil(bool fromStart){
     if(!fromStart){
         newBernsteinShape(newAirfoil);
         bernsteinShapes.back()->setModifying(true,true);
+        arma::vec start = arma::ones(30);
+        bernsteinShapes.back()->setCoefficients(start);
         newBernsteinShape(newAirfoil);
         bernsteinShapes.back()->setSide(BernsteinShape::bottom);
         //bernsteinShapes[bernsteinShapes.size()-2]->simulateClicked();
         modes.back()->simulateClicked();
+
+        //arma::vec noseStart = arma::zeros(25);
+        ////precise Nose Top
+        //newBernsteinShape(newAirfoil);
+        //bernsteinShapes.back()->setMax(0.05);
+        //bernsteinShapes.back()->setCoefficients(noseStart);
+
+        ////precise Nose Bot
+        //newBernsteinShape(newAirfoil);
+        //bernsteinShapes.back()->setSide(BernsteinShape::bottom);
+        //bernsteinShapes.back()->setMax(0.05);
+        //bernsteinShapes.back()->setCoefficients(noseStart);
     }
 }
 
@@ -469,6 +483,10 @@ BernsteinShapeInterface* Interface::newBernsteinShape(AirfoilInterface* airfoil)
 
     connect(shape,&BernsteinShapeInterface::changed,this,[=](bool needsNewShape){if(needsNewShape){activeAirfoil->setClassShapes();};
             activeAirfoil->baseCoords();},Qt::DirectConnection);
+    connect(shape,&BernsteinShapeInterface::changedCoefs,this,[=](double firstCoef){
+            for(BernsteinShapeInterface* shape : bernsteinShapes){
+                shape->setFirstCoefficient(firstCoef);
+            };},Qt::DirectConnection);
     connect(shape,&BernsteinShapeInterface::activated,[this,shape](bool recursively){activeShape = shape;
             if(!recursively){QTimer::singleShot(0,[this,shape](){scrollArea->ensureWidgetVisible(shape->getWidget());});}});
 
