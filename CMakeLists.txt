@@ -3,7 +3,7 @@ project(FoilBoXX)
 set(CMAKE_CXX_STANDARD 11)
 
 # version
-add_definitions( -DFOILBOXX_VERSION_STRING="0.6.3" )
+add_definitions( -DFOILBOXX_VERSION_STRING="0.6.4" )
 add_definitions( -DDYNAMIC_ARCH=TRUE )
 
 #resources for Qt-Pictures

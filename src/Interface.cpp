@@ -325,7 +325,7 @@ void Interface::deleteMode(FoilMode* mode){
 
 void Interface::newFoil(bool fromStart){
 
-    AirfoilInterface* newAirfoil = new AirfoilInterface(treeView,"Base");
+    AirfoilInterface* newAirfoil = new AirfoilInterface(treeView,"Base",fileVersion);
     airfoils.push_back(newAirfoil);
 
     //Add Plot

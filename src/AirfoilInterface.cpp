@@ -3,8 +3,8 @@
 #include "AirfoilInterface.h"
 #include <QDebug>
 
-AirfoilInterface::AirfoilInterface(QTreeWidget* tree, QString name): thicknessXfoil(getFlosseCut()),HierarchyElement(tree),
-    name(name), hasFile(false), flapRelChanged(true){
+AirfoilInterface::AirfoilInterface(QTreeWidget* tree, QString name, QString fileVersion): thicknessXfoil(getFlosseCut()),HierarchyElement(tree),
+    name(name), hasFile(false), flapRelChanged(true), fileVersion(fileVersion){
 
     connect(this,&AirfoilInterface::changed,this,[=](){
                 ui.thickness->setText(QString::number(thickness*100.0,'f',2) + " %");},Qt::QueuedConnection);
@@ -22,6 +22,7 @@ QDataStream& operator<<(QDataStream& out, AirfoilInterface& airfoil){
 
     out << airfoil.name;
     out << airfoil.file.fileName();
+    out << airfoil.alternativeClass;
     //out << airfoil.topShape << airfoil.botShape << airfoil.fkShape;
     out << airfoil.yPlus << airfoil.yMinus << airfoil.flapByRel << airfoil.flapRelY << airfoil.flapPivot(0) << airfoil.flapPivot(1);
     out << airfoil.turbOn << airfoil.getTurb()[0] << airfoil.getTurb()[1];
@@ -38,6 +39,18 @@ QDataStream& operator>>(QDataStream& in, AirfoilInterface& airfoil){
     airfoil.setName(name);
     in >> name;
     airfoil.file.setFileName(name);
+
+    if(airfoil.fileVersion != QString("0.6.1") &&
+            airfoil.fileVersion != QString("0.6.2") &&
+            airfoil.fileVersion != QString("0.6.0") &&
+            airfoil.fileVersion != QString("0.5.0") && 
+            airfoil.fileVersion != QString("0.6.3") && 
+            airfoil.fileVersion != QString("0.5.1")){
+        bool alt;
+        in >> alt;
+        airfoil.setAlternativeClassOn(alt,false);
+    }
+
     in >> airfoil.yPlus >> airfoil.yMinus >> airfoil.flapByRel >> airfoil.flapRelY >> airfoil.flapPivot(0) >> airfoil.flapPivot(1);
     double turbTop,turbBot;
     bool turbOn;
@@ -58,6 +71,10 @@ QDataStream& operator>>(QDataStream& in, AirfoilInterface& airfoil){
 void AirfoilInterface::setFkOn(bool on, bool recalc){
     setAttribute(setFk,on,recalc);
     ui.doubleSpinBox_fkChordFactor->setEnabled(on);
+}
+
+void AirfoilInterface::setAlternativeClassOn(bool on, bool recalc){
+    setAttribute(setAlternativeClass,on,recalc);
 }
 
 void AirfoilInterface::setTurbOn(bool on, bool recalc){
@@ -133,6 +150,7 @@ void AirfoilInterface::setupInterface(){
     connect(ui.doubleSpinBox_turbTop,QOverload<double>::of(&QDoubleSpinBox::valueChanged),[this](double x){setAttribute(setTurbTop,x,true);});
     connect(ui.doubleSpinBox_turbBot,QOverload<double>::of(&QDoubleSpinBox::valueChanged),[this](double x){setAttribute(setTurbBot,x,true);});
     connect(ui.groupBox_fk,&QGroupBox::toggled,[this](bool state){setFkOn(state,true);});
+    connect(ui.checkBox_alternativeClass,&QCheckBox::clicked,[this](bool state){setAlternativeClassOn(state,true);});
     connect(ui.groupBox_Turb,&QGroupBox::toggled,[this](bool state){setTurbOn(state,true);});
     connect(ui.pushButton_calcPolarAll,&QPushButton::clicked,[this](){emit calcAllPolars();});
     connect(ui.pushButton_optimizePolars,&QPushButton::clicked,[this](){emit optimizePolars();});
@@ -173,7 +191,7 @@ void AirfoilInterface::setInterfaceValues(){
 
     std::list<QObject*> toChange({ui.doubleSpinBox_flapX,ui.doubleSpinBox_flapY,ui.doubleSpinBox_yNose,
                             ui.doubleSpinBox_yPlus,ui.doubleSpinBox_yMinus,ui.doubleSpinBox_turbBot,ui.doubleSpinBox_turbTop,
-                            ui.doubleSpinBox_flapY_rel,ui.groupBox_fk,ui.groupBox_Turb});
+                            ui.doubleSpinBox_flapY_rel,ui.groupBox_fk,ui.groupBox_Turb,ui.checkBox_alternativeClass});
     for(QObject* obj : toChange){obj->blockSignals(true);}
 
     ui.doubleSpinBox_yPlus->setValue(getYPlus());
@@ -188,6 +206,7 @@ void AirfoilInterface::setInterfaceValues(){
     }
     ui.doubleSpinBox_turbTop->setValue(getTurb()[0]);
     ui.doubleSpinBox_turbBot->setValue(getTurb()[1]);
+    ui.checkBox_alternativeClass->setChecked(alternativeClass);
 
     auto turb = getTurb();
     ui.doubleSpinBox_turbTop->setValue(turb[0]);
