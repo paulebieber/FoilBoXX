@@ -51,6 +51,7 @@ protected:
     double etaDesignUpper;
     double etaDesignLower;
     bool fk;
+    bool alternativeClass;
     float teThickness;
     double yPlus;
     double noseY;
@@ -71,7 +72,7 @@ public:
 
     //Getters,Setters
     enum attributes{setNoseY,setYPlus,setYMinus,setFlapX,setFlapYRelative,setFlapYAbsolute,setFk,setTurbTop,setTurbBot,
-                        setFkChordFactor,setTurbOn};
+                        setFkChordFactor,setTurbOn,setAlternativeClass};
     template <typename T> void setAttribute(attributes kind, T value, bool recalc);
 
     

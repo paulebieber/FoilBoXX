@@ -15,14 +15,15 @@ XfoilSession::XfoilSession(arma::mat& coords):
 bool XfoilSession::setAnalysis(double re, double nCrit, bool reCa1) {
 
     nPoints = coords.n_rows;
+    std::cout << "Using nPts:" << nPoints << std::endl;
     x = coords.colptr(0);
     xs = arma::vec(x,nPoints);
     y = coords.colptr(1);
 
-    //foil->npan = nPoints;
-    //foil->pangen();
-
     foil->initXFoilGeometry(nPoints, x, y, nx, ny);
+
+    //foil->npan = 150;
+    //foil->pangen();
 
     double* posPress = foil->cpi; posPress++;
     double* posVisc = foil->cpv; posVisc++;
